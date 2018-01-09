@@ -52,12 +52,13 @@ def WordsVectorization(ll_corpus, workerNum=8,
     :param subSampling: Threshold for configuring which higher-frequency words are randomly downsampled;
         default is 1e-3, useful range is (0, 1e-5).
 
-    :return: evt is a dictionary containing the form of token as key and the corresponding vector as unique value.
+    :return: vst (vector space of terms) is a dictionary containing the form of token as key and the corresponding
+        vector as unique value.
 
     For more details, see: https://radimrehurek.com/gensim/models/word2vec.html
     """
 
-    evt = dict()
+    vst = dict()
 
     # train word2vec on the sentences
     model = gensim.models.Word2Vec(ll_corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
@@ -65,9 +66,9 @@ def WordsVectorization(ll_corpus, workerNum=8,
                                    sample=subSampling)
 
     for wordForm in model.wv.vocab.keys():
-        evt[wordForm] = model.wv[wordForm]
+        vst[wordForm] = model.wv[wordForm]
 
-    return evt
+    return vst
 
 
 #######################################################################################################
@@ -84,8 +85,8 @@ if __name__ == '__main__':
         ["hate", "leads", "to", "suffering", "."]
     ]
 
-    testEVT = WordsVectorization(ll_testCorpus, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
+    testVST = WordsVectorization(ll_testCorpus, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
 
-    print("Vocabulary: "+str(testEVT.keys()))
+    print("Vocabulary: "+str(testVST.keys()))
 
     print("Test of Word2Vec/Gensim end.")
