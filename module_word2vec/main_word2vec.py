@@ -27,6 +27,7 @@ import gensim
 import json
 import numpy
 from sys import stderr, stdin
+from optparse import OptionParser
 
 
 #######################################################################################################
@@ -63,37 +64,53 @@ def WordsVectorization(ll_corpus, workerNum=8,
     model = gensim.models.Word2Vec(ll_corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
                                    window=windowSize, alpha=learningRate, iter=numIteration, negative=negativeSampling,
                                    sample=subSampling)
-    return dict((k, model.wv[k]) for k in model.wv.vocab.keys())
+    return dict((k, _to_float_array(model.wv[k])) for k in model.wv.vocab.keys())
 
 
+def _to_float_array(npa):
+    return list(numpy.float_(npf32) for npf32 in npa)
 
-class JSONGensimEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if obj.__class__ is numpy.ndarray:
-            return [item for item in obj]
-        if obj.__class__ is numpy.float32:
-            return numpy.float_(obj)
-        return json.JSONEncoder.default(self, obj)
-
-
-def read_corpus(f):
-    result = []
+def read_corpus(f, corpus):
     current_sentence = []
     for line in f:
         line = line.strip()
         if line == '':
-            result.append(current_sentence)
-            current_sentence = []
+            if len(current_sentence) > 0:
+                corpus.append(current_sentence)
+                current_sentence = []
         else:
             current_sentence.append(line)
     if len(current_sentence) > 0:
-        result.append(current_sentence)
-    return result
+        corpus.append(current_sentence)
 
-#######################################################################################################
-# Tests
-#######################################################################################################
+class Word2Vec(OptionParser):
+    def __init__(self):
+        OptionParser.__init__(self, usage='usage: %prog [options]')
+        self.add_option('--json', action='store', type='string', dest='json', help='JSON output filename')
+        self.add_option('--txt', action='store', type='string', dest='txt', help='TXT output filename')
+
+    def run(self):
+        options, args = self.parse_args()
+        corpus = []
+        for fn in args:
+            f = open(fn)
+            read_corpus(f, corpus)
+            f.close()
+        if len(args) == 0:
+            read_corpus(stdin, corpus)
+        VST = WordsVectorization(corpus, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
+        if options.json is not None:
+            f = open(options.json, 'w')
+            f.write(json.dumps(VST))
+            f.close()
+        if options.txt is not None:
+            f = open(options.txt, 'w')
+            for k, v in VST.iteritems():
+                f.write(k)
+                f.write('\t')
+                f.write(str(list(numpy.float_(v))))
+                f.write('\n')
+            f.close()
+
 if __name__ == '__main__':
-    sentences = read_corpus(stdin)
-    VST = WordsVectorization(sentences, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
-    print(JSONGensimEncoder().encode(VST))
+    Word2Vec().run()
