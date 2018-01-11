@@ -24,6 +24,9 @@ limitations under the License.
 # Import modules & set up logging
 #######################################################################################################
 import gensim
+import json
+import numpy
+from sys import stderr
 
 
 #######################################################################################################
@@ -71,6 +74,19 @@ def WordsVectorization(ll_corpus, workerNum=8,
     return vst
 
 
+
+class JSONGensimEncoder(json.JSONEncoder):
+    def default(self, obj):
+        #stderr.write(str(obj.__class__)+'\n')
+        if obj.__class__ is numpy.ndarray:
+            return [item for item in obj]
+        if obj.__class__ is numpy.float32:
+            return numpy.float_(obj)
+        return json.JSONEncoder.default(self, obj)
+
+
+
+
 #######################################################################################################
 # Tests
 #######################################################################################################
@@ -87,6 +103,7 @@ if __name__ == '__main__':
 
     testVST = WordsVectorization(ll_testCorpus, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
 
-    print("Vocabulary: "+str(testVST.keys()))
-
+    print("Vocabulary: "+str(testVST))
+    print(JSONGensimEncoder().encode(testVST))
+    
     print("Test of Word2Vec/Gensim end.")
