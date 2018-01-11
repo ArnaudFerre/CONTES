@@ -30,9 +30,6 @@ from sys import stderr, stdin
 from optparse import OptionParser
 
 
-#######################################################################################################
-# Function
-#######################################################################################################
 def WordsVectorization(ll_corpus, workerNum=8,
                        minCount=0, vectSize=200,  skipGram=True, windowSize=2,
                        learningRate=0.05, numIteration=5, negativeSampling=5, subSampling=0.001):
@@ -64,24 +61,10 @@ def WordsVectorization(ll_corpus, workerNum=8,
     model = gensim.models.Word2Vec(ll_corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
                                    window=windowSize, alpha=learningRate, iter=numIteration, negative=negativeSampling,
                                    sample=subSampling)
-    return dict((k, _to_float_array(model.wv[k])) for k in model.wv.vocab.keys())
+    return dict((k, _toFloatArray(model.wv[k])) for k in model.wv.vocab.keys())
 
-
-def _to_float_array(npa):
+def _toFloatArray(npa):
     return list(numpy.float_(npf32) for npf32 in npa)
-
-def read_corpus(f, corpus):
-    current_sentence = []
-    for line in f:
-        line = line.strip()
-        if line == '':
-            if len(current_sentence) > 0:
-                corpus.append(current_sentence)
-                current_sentence = []
-        else:
-            current_sentence.append(line)
-    if len(current_sentence) > 0:
-        corpus.append(current_sentence)
 
 class Word2Vec(OptionParser):
     def __init__(self):
@@ -93,29 +76,55 @@ class Word2Vec(OptionParser):
         self.add_option('--workers', action='store', type='int', dest='workerNum', default=2, help='number of workers')
         self.add_option('--skip-gram', action='store_true', dest='skipGram', default=False, help='use skip-gram algorithm')
         self.add_option('--window-size', action='store', type='int', dest='windowSize', default=2, help='window size')
+        self.corpus = []
 
     def run(self):
         options, args = self.parse_args()
-        corpus = []
-        for fn in args:
+        self.readCorpusFiles(args)
+        self.buildVector(options)
+        self.writeJSON(options.json)
+        self.writeTxt(options.txt)
+
+    def buildVector(self, options):
+        self.VST = WordsVectorization(self.corpus, minCount=options.minCount, vectSize=options.vectSize, workerNum=options.workerNum, skipGram=options.skipGram, windowSize=options.windowSize)
+        
+    def writeJSON(self, fileName):
+        if fileName is None:
+            return
+        f = open(fileName, 'w')
+        f.write(json.dumps(self.VST))
+        f.close()
+
+    def writeTxt(self, fileName):
+        f = open(fileName, 'w')
+        for k, v in self.VST.iteritems():
+            f.write(k)
+            f.write('\t')
+            f.write(str(v))
+            f.write('\n')
+        f.close()
+        
+    def readCorpusFiles(self, fileNames):
+        if len(fileNames) == 0:
+            self.readCorpus(stdin)
+            return
+        for fn in fileNames:
             f = open(fn)
-            read_corpus(f, corpus)
+            self.readCorpus(f)
             f.close()
-        if len(args) == 0:
-            read_corpus(stdin, corpus)
-        VST = WordsVectorization(corpus, minCount=options.minCount, vectSize=options.vectSize, workerNum=options.workerNum, skipGram=options.skipGram, windowSize=options.windowSize)
-        if options.json is not None:
-            f = open(options.json, 'w')
-            f.write(json.dumps(VST))
-            f.close()
-        if options.txt is not None:
-            f = open(options.txt, 'w')
-            for k, v in VST.iteritems():
-                f.write(k)
-                f.write('\t')
-                f.write(str(list(numpy.float_(v))))
-                f.write('\n')
-            f.close()
+            
+    def readCorpus(self, f):
+        current_sentence = []
+        for line in f:
+            line = line.strip()
+            if line == '':
+                if len(current_sentence) > 0:
+                    self.corpus.append(current_sentence)
+                    current_sentence = []
+            else:
+                current_sentence.append(line)
+        if len(current_sentence) > 0:
+            self.corpus.append(current_sentence)
 
 if __name__ == '__main__':
     Word2Vec().run()
