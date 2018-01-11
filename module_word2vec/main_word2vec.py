@@ -26,7 +26,7 @@ limitations under the License.
 import gensim
 import json
 import numpy
-from sys import stderr
+from sys import stderr, stdin
 
 
 #######################################################################################################
@@ -76,23 +76,24 @@ class JSONGensimEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+def read_corpus(f):
+    result = []
+    current_sentence = []
+    for line in f:
+        line = line.strip()
+        if line == '':
+            result.append(current_sentence)
+            current_sentence = []
+        else:
+            current_sentence.append(line)
+    if len(current_sentence) > 0:
+        result.append(current_sentence)
+    return result
+
 #######################################################################################################
 # Tests
 #######################################################################################################
 if __name__ == '__main__':
-
-    print("Test of Word2Vec/Gensim...")
-
-    ll_testCorpus=[
-        ["fear", "is", "the", "path", "to", "the", "dark", "side", "."],
-        ["fear", "leads", "to", "anger", "."],
-        ["anger", "leads", "to", "hate", "."],
-        ["hate", "leads", "to", "suffering", "."]
-    ]
-
-    testVST = WordsVectorization(ll_testCorpus, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
-
-    print("Vocabulary: "+str(testVST))
-    print(JSONGensimEncoder().encode(testVST))
-    
-    print("Test of Word2Vec/Gensim end.")
+    sentences = read_corpus(stdin)
+    VST = WordsVectorization(sentences, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
+    print(JSONGensimEncoder().encode(VST))
