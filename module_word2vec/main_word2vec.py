@@ -60,31 +60,20 @@ def WordsVectorization(ll_corpus, workerNum=8,
 
     For more details, see: https://radimrehurek.com/gensim/models/word2vec.html
     """
-
-    vst = dict()
-
-    # train word2vec on the sentences
     model = gensim.models.Word2Vec(ll_corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
                                    window=windowSize, alpha=learningRate, iter=numIteration, negative=negativeSampling,
                                    sample=subSampling)
-
-    for wordForm in model.wv.vocab.keys():
-        vst[wordForm] = model.wv[wordForm]
-
-    return vst
+    return dict((k, model.wv[k]) for k in model.wv.vocab.keys())
 
 
 
 class JSONGensimEncoder(json.JSONEncoder):
     def default(self, obj):
-        #stderr.write(str(obj.__class__)+'\n')
         if obj.__class__ is numpy.ndarray:
             return [item for item in obj]
         if obj.__class__ is numpy.float32:
             return numpy.float_(obj)
         return json.JSONEncoder.default(self, obj)
-
-
 
 
 #######################################################################################################
