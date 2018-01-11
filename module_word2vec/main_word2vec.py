@@ -88,6 +88,11 @@ class Word2Vec(OptionParser):
         OptionParser.__init__(self, usage='usage: %prog [options]')
         self.add_option('--json', action='store', type='string', dest='json', help='JSON output filename')
         self.add_option('--txt', action='store', type='string', dest='txt', help='TXT output filename')
+        self.add_option('--min-count', action='store', type='int', dest='minCount', default=0, help='min word count')
+        self.add_option('--vector-size', action='store', type='int', dest='vectSize', default=300, help='vector size')
+        self.add_option('--workers', action='store', type='int', dest='workerNum', default=2, help='number of workers')
+        self.add_option('--skip-gram', action='store_true', dest='skipGram', default=False, help='use skip-gram algorithm')
+        self.add_option('--window-size', action='store', type='int', dest='windowSize', default=2, help='window size')
 
     def run(self):
         options, args = self.parse_args()
@@ -98,7 +103,7 @@ class Word2Vec(OptionParser):
             f.close()
         if len(args) == 0:
             read_corpus(stdin, corpus)
-        VST = WordsVectorization(corpus, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
+        VST = WordsVectorization(corpus, minCount=options.minCount, vectSize=options.vectSize, workerNum=options.workerNum, skipGram=options.skipGram, windowSize=options.windowSize)
         if options.json is not None:
             f = open(options.json, 'w')
             f.write(json.dumps(VST))
