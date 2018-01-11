@@ -19,16 +19,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
-#######################################################################################################
-# Import modules & set up logging
-#######################################################################################################
 import gensim
 import json
 import numpy
 from sys import stderr, stdin
 from optparse import OptionParser
-
 
 def WordsVectorization(ll_corpus, workerNum=8,
                        minCount=0, vectSize=200,  skipGram=True, windowSize=2,
