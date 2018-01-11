@@ -26,12 +26,10 @@ limitations under the License.
 import gensim
 import json
 import numpy
-from sys import stderr
+from sys import stderr, stdin
+from optparse import OptionParser
 
 
-#######################################################################################################
-# Function
-#######################################################################################################
 def WordsVectorization(ll_corpus, workerNum=8,
                        minCount=0, vectSize=200,  skipGram=True, windowSize=2,
                        learningRate=0.05, numIteration=5, negativeSampling=5, subSampling=0.001):
@@ -60,50 +58,73 @@ def WordsVectorization(ll_corpus, workerNum=8,
 
     For more details, see: https://radimrehurek.com/gensim/models/word2vec.html
     """
-
-    vst = dict()
-
-    # train word2vec on the sentences
     model = gensim.models.Word2Vec(ll_corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
                                    window=windowSize, alpha=learningRate, iter=numIteration, negative=negativeSampling,
                                    sample=subSampling)
+    return dict((k, _toFloatArray(model.wv[k])) for k in model.wv.vocab.keys())
 
-    for wordForm in model.wv.vocab.keys():
-        vst[wordForm] = model.wv[wordForm]
+def _toFloatArray(npa):
+    return list(numpy.float_(npf32) for npf32 in npa)
 
-    return vst
+class Word2Vec(OptionParser):
+    def __init__(self):
+        OptionParser.__init__(self, usage='usage: %prog [options]')
+        self.add_option('--json', action='store', type='string', dest='json', help='JSON output filename')
+        self.add_option('--txt', action='store', type='string', dest='txt', help='TXT output filename')
+        self.add_option('--min-count', action='store', type='int', dest='minCount', default=0, help='min word count')
+        self.add_option('--vector-size', action='store', type='int', dest='vectSize', default=300, help='vector size')
+        self.add_option('--workers', action='store', type='int', dest='workerNum', default=2, help='number of workers')
+        self.add_option('--skip-gram', action='store_true', dest='skipGram', default=False, help='use skip-gram algorithm')
+        self.add_option('--window-size', action='store', type='int', dest='windowSize', default=2, help='window size')
+        self.corpus = []
 
+    def run(self):
+        options, args = self.parse_args()
+        self.readCorpusFiles(args)
+        self.buildVector(options)
+        self.writeJSON(options.json)
+        self.writeTxt(options.txt)
 
+    def buildVector(self, options):
+        self.VST = WordsVectorization(self.corpus, minCount=options.minCount, vectSize=options.vectSize, workerNum=options.workerNum, skipGram=options.skipGram, windowSize=options.windowSize)
+        
+    def writeJSON(self, fileName):
+        if fileName is None:
+            return
+        f = open(fileName, 'w')
+        f.write(json.dumps(self.VST))
+        f.close()
 
-class JSONGensimEncoder(json.JSONEncoder):
-    def default(self, obj):
-        #stderr.write(str(obj.__class__)+'\n')
-        if obj.__class__ is numpy.ndarray:
-            return [item for item in obj]
-        if obj.__class__ is numpy.float32:
-            return numpy.float_(obj)
-        return json.JSONEncoder.default(self, obj)
+    def writeTxt(self, fileName):
+        f = open(fileName, 'w')
+        for k, v in self.VST.iteritems():
+            f.write(k)
+            f.write('\t')
+            f.write(str(v))
+            f.write('\n')
+        f.close()
+        
+    def readCorpusFiles(self, fileNames):
+        if len(fileNames) == 0:
+            self.readCorpus(stdin)
+            return
+        for fn in fileNames:
+            f = open(fn)
+            self.readCorpus(f)
+            f.close()
+            
+    def readCorpus(self, f):
+        current_sentence = []
+        for line in f:
+            line = line.strip()
+            if line == '':
+                if len(current_sentence) > 0:
+                    self.corpus.append(current_sentence)
+                    current_sentence = []
+            else:
+                current_sentence.append(line)
+        if len(current_sentence) > 0:
+            self.corpus.append(current_sentence)
 
-
-
-
-#######################################################################################################
-# Tests
-#######################################################################################################
 if __name__ == '__main__':
-
-    print("Test of Word2Vec/Gensim...")
-
-    ll_testCorpus=[
-        ["fear", "is", "the", "path", "to", "the", "dark", "side", "."],
-        ["fear", "leads", "to", "anger", "."],
-        ["anger", "leads", "to", "hate", "."],
-        ["hate", "leads", "to", "suffering", "."]
-    ]
-
-    testVST = WordsVectorization(ll_testCorpus, minCount=0, vectSize=2, workerNum=8, skipGram=True, windowSize=2)
-
-    print("Vocabulary: "+str(testVST))
-    print(JSONGensimEncoder().encode(testVST))
-    
-    print("Test of Word2Vec/Gensim end.")
+    Word2Vec().run()

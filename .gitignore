@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+module_word2vec/output.json
+module_word2vec/output.txt
