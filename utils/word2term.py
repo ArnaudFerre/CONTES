@@ -6,8 +6,9 @@
 """
 Author: Arnaud Ferré
 Mail: arnaud.ferre.pro@gmail.com
-Description:
-Dependencies:
+Description: Giving a list a new terms (notably multiwords terms) and a VST from a corpus, embeds the new terms in the
+current VST (currently with calculating the barycentre of tokens composing a multiwords term).
+Dependency: Numpy lib (available with Anaconda)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,16 +30,16 @@ import numpy
 #######################################################################################################
 # Functions
 #######################################################################################################
-def getSizeOfEVT(evt):
+def getSizeOfVST(vst):
     """
-    Description: Return the size of the vector space of an evt variable.
-    Look for the first existing vector of the evt and get its size.
-    NB: Used only to not have to pass the size of the evt as a parameter.
+    Description: Return the size of the vector space of an vst variable.
+    Look for the first existing vector of the vst and get its size.
+    NB: Used only to not have to pass the size of the vst as a parameter.
     """
     size = 0
-    for key in evt:
-        if evt[key] is not None:
-            size = evt[key].size
+    for key in vst:
+        if vst[key] is not None:
+            size = vst[key].size
             break
     return size
 
@@ -59,23 +60,23 @@ def getFormOfTerm(l_tokens, symbol="___"):
     return term
 
 
-def calculateTermVec(evt_onlyTokens, l_tokens, l_unknownToken):
+def calculateTermVec(vst_onlyTokens, l_tokens, l_unknownToken):
     """
     Description: Calculates a vector for a multi-words (or single-word) term from the vectors of tokens forming the term.
-    :param evt_onlyTokens: An EVT, but normally containing only vector for tokens.
+    :param vst_onlyTokens: An VST, but normally containing only vector for tokens.
     :param l_tokens: List of orderly tokens forming a term.
-    :param l_unknownToken: If a token of the term doesn't have calculated vector in the evt, a register is saved here.
-    :return: A vector for the term given by l_tokens. If there is an unique token and that this one is not in the evt,
+    :param l_unknownToken: If a token of the term doesn't have calculated vector in the vst, a register is saved here.
+    :return: A vector for the term given by l_tokens. If there is an unique token and that this one is not in the vst,
     then a null vector is associated to this one-word term.
     """
-    size = getSizeOfEVT(evt_onlyTokens)
+    size = getSizeOfVST(vst_onlyTokens)
     vec = numpy.zeros((size))
 
     numberOfKnownTokens = 0
 
     for i, token in enumerate(l_tokens):
-        if token in evt_onlyTokens.keys():
-            vec += evt_onlyTokens[token]
+        if token in vst_onlyTokens.keys():
+            vec += vst_onlyTokens[token]
             numberOfKnownTokens += 1
         else:
             l_unknownToken.append(token)
@@ -86,24 +87,24 @@ def calculateTermVec(evt_onlyTokens, l_tokens, l_unknownToken):
     return vec, l_unknownToken
 
 
-def wordEVT2TermEVT(evt_onlyTokens, dl_terms):
+def wordVST2TermVST(vst_onlyTokens, dl_terms):
     """
-    Description: Generate a new EVT in which all tokens and all terms from the dl_terms is exprimed.
-    :param evt_onlyTokens: An EVT, but normally containing only vector for tokens.
+    Description: Generate a new VST in which all tokens and all terms from the dl_terms is exprimed.
+    :param vst_onlyTokens: An VST, but normally containing only vector for tokens.
     :param dl_terms: A dictionnary with id of terms for key and raw form of terms in value.
-    :return: A new EVT.
+    :return: A new VST.
     """
-    evt = dict()
+    vst = dict()
     l_unknownToken = list()
 
     for id_term in dl_terms.keys():
 
         term = getFormOfTerm(dl_terms[id_term])
-        vec, l_unknownToken = calculateTermVec(evt_onlyTokens, dl_terms[id_term], l_unknownToken)
+        vec, l_unknownToken = calculateTermVec(vst_onlyTokens, dl_terms[id_term], l_unknownToken)
 
-        evt[term] = vec
+        vst[term] = vec
 
-    return evt, l_unknownToken
+    return vst, l_unknownToken
 
 #######################################################################################################
 # Tests
@@ -112,18 +113,18 @@ if __name__ == '__main__':
 
     print("Test of wordVecToTermVec...")
 
-    sizeEvt = 2
-    evt_onlyTokens = {
-        "fear":numpy.random.rand(sizeEvt), "is":numpy.random.rand(sizeEvt), "the":numpy.random.rand(sizeEvt),
-        "path":numpy.random.rand(sizeEvt), "to":numpy.random.rand(sizeEvt), "dark":numpy.random.rand(sizeEvt),
-        "side":numpy.random.rand(sizeEvt), "leads":numpy.random.rand(sizeEvt), "anger":numpy.random.rand(sizeEvt),
-        "hate":numpy.random.rand(sizeEvt), "suffering":numpy.random.rand(sizeEvt)
+    sizeVst = 2
+    vst_onlyTokens = {
+        "fear":numpy.random.rand(sizeVst), "is":numpy.random.rand(sizeVst), "the":numpy.random.rand(sizeVst),
+        "path":numpy.random.rand(sizeVst), "to":numpy.random.rand(sizeVst), "dark":numpy.random.rand(sizeVst),
+        "side":numpy.random.rand(sizeVst), "leads":numpy.random.rand(sizeVst), "anger":numpy.random.rand(sizeVst),
+        "hate":numpy.random.rand(sizeVst), "suffering":numpy.random.rand(sizeVst)
     }
 
     dl_terms = {"01" : ["dark", "side"], "02" : ["fear"], "03" : ["light", "side"], "04" : ["force"] }
 
-    evtTerm, l_unknownToken = wordEVT2TermEVT(evt_onlyTokens, dl_terms)
-    print(evtTerm)
+    vstTerm, l_unknownToken = wordVST2TermVST(vst_onlyTokens, dl_terms)
+    print("VST with terms vectors: " + str(vstTerm))
     print("Unknown Tokens: " + str(l_unknownToken))
 
     print("Test of wordVecToTermVec end.")
