@@ -91,7 +91,9 @@ def calculateTermVec(vst_onlyTokens, l_tokens, l_unknownToken):
 
 def wordVST2TermVST(vst_onlyTokens, dl_terms):
     """
-    Description: Generate a new VST in which all tokens and all terms from the dl_terms is exprimed.
+    Description: Generate a new VST variable in which all terms from the dl_terms is expressed.
+        Mathematically speaking, it is the same vector space than vst_onlyTokens, but the returned variable doesn't
+        conserve the information of the tokens.
     :param vst_onlyTokens: An VST, but normally containing only vector for tokens.
     :param dl_terms: A dictionnary with id of terms for key and raw form of terms in value.
     :return: A new VST.
