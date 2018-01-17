@@ -7,7 +7,9 @@
 Author: Arnaud Ferré
 Mail: arnaud.ferre.pro@gmail.com
 Description: Giving a list a new terms (notably multiwords terms) and a VST from a corpus, embeds the new terms in the
-current VST (currently with calculating the barycentre of tokens composing a multiwords term).
+    current VST (currently with calculating the barycentre of tokens composing a multiwords term).
+    If you want to cite this work in your publication or to have more details:
+    http://www.aclweb.org/anthology/W17-2312.
 Dependency: Numpy lib (available with Anaconda)
 
 Licensed under the Apache License, Version 2.0 (the "License");

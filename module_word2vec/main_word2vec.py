@@ -7,6 +7,8 @@
 Author: Arnaud Ferré
 Mail: arnaud.ferre.pro@gmail.com
 Description: Word2Vec/Gensim module to implement on ALVIS-ML/NLP
+    If you want to cite this work in your publication or to have more details:
+    http://www.aclweb.org/anthology/W17-2312.
 Dependencies: Require the installation of Gensim (https://radimrehurek.com/gensim/install.html)
 
 Licensed under the Apache License, Version 2.0 (the "License");
