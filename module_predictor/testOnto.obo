@@ -1,0 +1,32 @@
+format-version: 1.2
+ontology: http://www.semanticweb.org/arferre/ontologies/2018/0/untitled-ontology-89
+
+[Term]
+id: SDO_00000000
+name: Animalia
+
+[Term]
+id: SDO_00000001
+name: Dog
+is_a: SDO_00000000 ! Animalia
+
+[Term]
+id: SDO_00000002
+name: Cat
+is_a: SDO_00000000 ! Animalia
+
+[Term]
+id: SDO_00000003
+name: Siamoise
+is_a: SDO_00000002 ! Cat
+
+[Term]
+id: SDO_00000004
+name: Angora
+is_a: SDO_00000002 ! Cat
+
+[Term]
+id: SDO_00000005
+name: Labrador
+is_a: SDO_00000001 ! Dog
+

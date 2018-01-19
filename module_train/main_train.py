@@ -122,6 +122,7 @@ def train(vst_onlyTokens, dl_terms, dl_associations, onto):
         To not lose this information, the unknown tokens contained in multiwords terms are also returned.
     """
     reg = linear_model.LinearRegression()
+    # See parameters of the linear regression (fit_intercept, normalize, n_jobs)
 
     vso = ontoToVec(onto)
 
@@ -189,9 +190,7 @@ if __name__ == '__main__':
         "yoda": numpy.random.rand(sizeVst)
     }
 
-    l_term1 = ["dog", "of", "my", "neighbours"]
-    l_term2 = ["cat", "from", "lady", "and", "the", "tramp"]
-    dl_terms = {"01": l_term1, "02": l_term2, "03" : ["dog"], "04": ["yoda"]}
+
 
     dl_associations = {
         "01" : ["<SDO_00000001: Dog>"],
@@ -200,7 +199,7 @@ if __name__ == '__main__':
         "04": ["<SDO_00000000: Animalia>"]
     }
 
-    ontoPath = "../../testOnto.obo"
+    ontoPath = "testOnto.obo"
     ontoTest = loadOnto(ontoPath)
 
 
