@@ -41,7 +41,8 @@ def getSizeOfVST(vst):
     size = 0
     for key in vst:
         if vst[key] is not None:
-            size = vst[key].size
+            #size = vst[key].size
+            size = len(vst[key])
             break
     return size
 
