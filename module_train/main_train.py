@@ -31,9 +31,13 @@ limitations under the License.
 #######################################################################################################
 import pronto
 from sklearn import linear_model
+from sklearn.externals import joblib
 import numpy
-
+from sys import stderr, stdin
+from optparse import OptionParser
 from utils import word2term
+import json
+
 
 #######################################################################################################
 # Functions
@@ -61,15 +65,16 @@ def ontoToVec(onto):
     d_assoDim = dict()
 
     for i, concept in enumerate(onto):
-        id_concept = str(concept)
+        #id_concept = str(concept)
+        id_concept = concept.id
         vso[id_concept] = numpy.zeros(size)
         d_assoDim[id_concept] = i
         vso[id_concept][d_assoDim[id_concept]] = 1
 
     for concept in onto:
-        id_concept = str(concept)
+        id_concept = concept.id
         for parent in concept.rparents(-1, True):
-            id_parent = str(parent)
+            id_parent = parent.id
             vso[id_concept][d_assoDim[id_parent]] = 1
 
     return vso
@@ -135,93 +140,49 @@ def train(vst_onlyTokens, dl_terms, dl_associations, onto):
     return reg, vso, l_unknownToken
 
 
+def loadJSON(filename):
+    f = open(filename)
+    result = json.load(f)
+    f.close()
+    return result;
+
+class Train(OptionParser):
+    def __init__(self):
+        OptionParser.__init__(self, usage='usage: %prog [options]')
+        self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors file as produced by word2vec')
+        self.add_option('--terms', action='store', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
+        self.add_option('--attributions', action='store', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
+        self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
+        self.add_option('--ontology-vector', action='store', type='string', dest='ontology_vector', help='path to the ontology vector file')
+        self.add_option('--regression-matrix', action='store', type='string', dest='regression_matrix', help='path to the regression matrix file')
+        
+    def run(self):
+        options, args = self.parse_args()
+        if len(args) > 0:
+            raise Exception('stray arguments: ' + ' '.join(args))
+        if options.word_vectors is None:
+            raise Exception('missing --word-vectors')
+        if options.terms is None:
+            raise Exception('missing --terms')
+        if options.attributions is None:
+            raise Exception('missing --attributions')
+        if options.ontology is None:
+            raise Exception('missing --ontology')
+        word_vectors = loadJSON(options.word_vectors)
+        terms = loadJSON(options.terms)
+        attributions = loadJSON(options.attributions)
+        ontology = loadOnto(options.ontology)
+        regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology)
+        if options.ontology_vector is not None:
+            # translate numpy arrays into lists
+            serializable = dict((k, list(v)) for k, v in ontology_vector.iteritems())
+            f = open(options.ontology_vector, 'w')
+            json.dump(serializable, f)
+            f.close()
+        if options.regression_matrix is not None:
+            joblib.dump(regression_matrix, options.regression_matrix)
 
 
-
-# TO TRASH (just for test)
-
-def getCosSimilarity(vec1, vec2):
-    from scipy import spatial
-    result = 1 - spatial.distance.cosine(vec1, vec2)
-    return result
-
-def getNearearConcept(vecTerm, vso):
-    max = 0
-    mostSimilarConcept = None
-    for id_concept in vso.keys():
-        dist = getCosSimilarity(vecTerm, vso[id_concept])
-        if dist > max:
-            max = dist
-            mostSimilarConcept = id_concept
-    return mostSimilarConcept
-
-def testPredict(reg, vst_onlyTokens, dl_terms, symbol="___"):
-
-    vstTerm, l_unknownToken = word2term.wordVST2TermVST(vst_onlyTokens, dl_terms)
-
-    result = dict()
-
-    vsoTerms = dict()
-    for id_term in dl_terms.keys():
-        termForm = word2term.getFormOfTerm(dl_terms[id_term], symbol)
-        x = vstTerm[termForm].reshape(1, -1)
-        vsoTerms[termForm] = reg.predict(x)[0]
-
-        result[termForm] = getNearearConcept(vsoTerms[termForm], vso)
-
-    return vsoTerms, result
-
-
-#######################################################################################################
-# Tests
-#######################################################################################################
+            
 if __name__ == '__main__':
-
-    print("Test of train module...")
-
-    # Test data :
-
-    sizeVst = 2
-    vst_onlyTokens = {
-        "dog" : numpy.random.rand(sizeVst), "neighbours": numpy.random.rand(sizeVst), "cat": numpy.random.rand(sizeVst),
-        "lady": numpy.random.rand(sizeVst), "tramp": numpy.random.rand(sizeVst), "fear": numpy.random.rand(sizeVst),
-        "path": numpy.random.rand(sizeVst), "dark": numpy.random.rand(sizeVst), "side": numpy.random.rand(sizeVst),
-        "leads": numpy.random.rand(sizeVst), "anger": numpy.random.rand(sizeVst), "hate": numpy.random.rand(sizeVst),
-        "yoda": numpy.random.rand(sizeVst)
-    }
-
-
-
-    dl_associations = {
-        "01" : ["<SDO_00000001: Dog>"],
-        "02" : ["<SDO_00000003: Siamoise>"],
-        "03" : ["<SDO_00000001: Dog>"],
-        "04": ["<SDO_00000000: Animalia>"]
-    }
-
-    ontoPath = "testOnto.obo"
-    ontoTest = loadOnto(ontoPath)
-
-
-    # Module test :
-
-    vso = ontoToVec(ontoTest)
-    print("VSO : " + str(vso))
-
-    reg, vso, l_unknownToken = train(vst_onlyTokens, dl_terms, dl_associations, ontoTest)
-    print("VSO : " + str(vso))
-    print("Unknown Tokens: " + str(l_unknownToken))
-
-    # NB : Use joblib (from sklearn.externals import joblib) to save a file for reg.
-
-
-
-    # Prediction test on training set: (TO TRASH)
-    print "\n"
-    vsoTerms, result = testPredict(reg, vst_onlyTokens, dl_terms, symbol="___")
-    print("Terms in VSO : " + str(vsoTerms))
-    import json
-    print(json.dumps(result, indent=4))
-
-
-    print("Test of train module end.")
+    Train().run()
