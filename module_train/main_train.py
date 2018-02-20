@@ -29,56 +29,18 @@ limitations under the License.
 #######################################################################################################
 # Import modules & set up logging
 #######################################################################################################
-import pronto
 from sklearn import linear_model
 from sklearn.externals import joblib
 import numpy
 from sys import stderr, stdin
 from optparse import OptionParser
-from utils import word2term
+from utils import word2term, onto
 import json
 
 
 #######################################################################################################
 # Functions
 #######################################################################################################
-def loadOnto(ontoPath):
-    """
-    Description: Load an ontology object from a specified path.
-    :param ontoPath: path of the ontology
-    :return: pronto object representing an ontology
-    NB: Even if it should accept OWL file, only OBO seems work.
-    """
-    onto = pronto.Ontology(ontoPath)
-    return onto
-
-
-def ontoToVec(onto):
-    """
-    Description: Create a vector space of the ontology. It uses hierarchical information to do this.
-    :param onto: A Pronto object representing an ontology.
-    :return: A VSO, that is a dictionary with id of concept (<XXX_xxxxxxxx: Label>) as keys and a numpy vector in value.
-    """
-    vso = dict()
-
-    size = len(onto)
-    d_assoDim = dict()
-
-    for i, concept in enumerate(onto):
-        #id_concept = str(concept)
-        id_concept = concept.id
-        vso[id_concept] = numpy.zeros(size)
-        d_assoDim[id_concept] = i
-        vso[id_concept][d_assoDim[id_concept]] = 1
-
-    for concept in onto:
-        id_concept = concept.id
-        for parent in concept.rparents(-1, True):
-            id_parent = parent.id
-            vso[id_concept][d_assoDim[id_parent]] = 1
-
-    return vso
-
 
 def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
     """
@@ -112,7 +74,7 @@ def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
 
 
 
-def train(vst_onlyTokens, dl_terms, dl_associations, onto):
+def train(vst_onlyTokens, dl_terms, dl_associations, ontology):
     """
     Description: Main module which calculates the regression parameters (a matrix)
     :param vst_onlyTokens: An initial VST containing only tokens and associated vectors.
@@ -129,7 +91,7 @@ def train(vst_onlyTokens, dl_terms, dl_associations, onto):
     reg = linear_model.LinearRegression()
     # See parameters of the linear regression (fit_intercept, normalize, n_jobs)
 
-    vso = ontoToVec(onto)
+    vso = onto.ontoToVec(ontology)
 
     vstTerm, l_unknownToken = word2term.wordVST2TermVST(vst_onlyTokens, dl_terms)
 
@@ -171,7 +133,7 @@ class Train(OptionParser):
         word_vectors = loadJSON(options.word_vectors)
         terms = loadJSON(options.terms)
         attributions = loadJSON(options.attributions)
-        ontology = loadOnto(options.ontology)
+        ontology = onto.loadOnto(options.ontology)
         regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology)
         if options.ontology_vector is not None:
             # translate numpy arrays into lists
