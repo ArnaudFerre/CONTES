@@ -28,8 +28,10 @@ limitations under the License.
 # Import modules & set up logging
 #######################################################################################################
 import numpy
-
-from utils import word2term
+from utils import word2term, onto
+from optparse import OptionParser
+import json
+from sklearn.externals import joblib
 
 #######################################################################################################
 # Functions
@@ -95,58 +97,47 @@ def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, symbol="___"):
 
     return lt_predictions, l_unknownToken
 
-#######################################################################################################
-# Tests
-#######################################################################################################
+
+def loadJSON(filename):
+    f = open(filename)
+    result = json.load(f)
+    f.close()
+    return result;
+
+
+class Predictor(OptionParser):
+    def __init__(self):
+        OptionParser.__init__(self, usage='usage: %prog [options]')
+        self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors file as produced by word2vec')
+        self.add_option('--terms', action='store', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
+        self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
+        self.add_option('--regression-matrix', action='store', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
+        self.add_option('--output', action='store', type='string', dest='output', help='file where to write predictions')
+        
+    def run(self):
+        options, args = self.parse_args()
+        if len(args) > 0:
+            raise Exception('stray arguments: ' + ' '.join(args))
+        if options.word_vectors is None:
+            raise Exception('missing --word-vectors')
+        if options.terms is None:
+            raise Exception('missing --terms')
+        if options.ontology is None:
+            raise Exception('missing --ontology')
+        if options.regression_matrix is None:
+            raise Exception('missing --regression-matrix')
+        if options.output is None:
+            raise Exception('missing --output')
+        word_vectors = loadJSON(options.word_vectors)
+        terms = loadJSON(options.terms)
+        ontology = onto.loadOnto(options.ontology)
+        vso = onto.ontoToVec(ontology)
+        regression_matrix = joblib.load(options.regression_matrix)
+        prediction, _ = predictor(word_vectors, terms, vso, regression_matrix)
+        f = open(options.output, 'w')
+        for _, term_id, concept_id in prediction:
+            f.write('%s\t%s\n' % (term_id, concept_id))
+        f.close()
+
 if __name__ == '__main__':
-    print("Test of predictor module...")
-
-    # Test data :
-
-    sizeVst = 2
-    vst_onlyTokens = {
-        "dog": numpy.random.rand(sizeVst), "neighbours": numpy.random.rand(sizeVst), "cat": numpy.random.rand(sizeVst),
-        "lady": numpy.random.rand(sizeVst), "tramp": numpy.random.rand(sizeVst), "fear": numpy.random.rand(sizeVst),
-        "path": numpy.random.rand(sizeVst), "dark": numpy.random.rand(sizeVst), "side": numpy.random.rand(sizeVst),
-        "leads": numpy.random.rand(sizeVst), "anger": numpy.random.rand(sizeVst), "hate": numpy.random.rand(sizeVst),
-        "yoda": numpy.random.rand(sizeVst)
-    }
-
-    l_term1 = ["dog", "of", "my", "neighbours"]
-    l_term2 = ["cat", "from", "lady", "and", "the", "tramp"]
-    dl_termsTrain = {"01": l_term1, "02": l_term2, "03" : ["dog"], "04": ["yoda"], "05": ["cat"]}
-
-    dl_associations = {
-        "01": ["<SDO_00000001: Dog>"],
-        "02": ["<SDO_00000003: Siamoise>"],
-        "03": ["<SDO_00000001: Dog>"],
-        "04": ["<SDO_00000000: Animalia>"],
-        "05": ["<SDO_00000002: Cat>"]
-    }
-
-
-    from module_train import main_train
-    ontoPath = "testOnto.obo"
-    ontoTest = main_train.loadOnto(ontoPath)
-
-    vso = main_train.ontoToVec(ontoTest)
-    print("VSO : " + str(vso))
-
-    reg, vso, l_unknownToken = main_train.train(vst_onlyTokens, dl_termsTrain, dl_associations, ontoTest)
-    print("VSO : " + str(vso))
-    print("Unknown Tokens: " + str(l_unknownToken) + "\n\n")
-
-
-
-    # Module test :
-
-    l_term1 = ["friendly", "little", "dog"]
-    l_term2 = ["dark", "side", "of", "the", "moon"]
-    l_term3 = ["dog", "from", "lady", "and", "the", "tramp"]
-    dl_termsTest = {"01": l_term1, "02": l_term2, "03": ["dog"], "04": ["cat"], "05": l_term3}
-
-    lt_predictions, l_unknownToken = predictor(vst_onlyTokens, dl_termsTest, vso, reg, symbol="___")
-    print("Predictions: " + str(lt_predictions))
-    print("Unknown Tokens for test: " + str(l_unknownToken) + "\n\n")
-
-    print("Test of predictor module end.")
+    Predictor().run()
