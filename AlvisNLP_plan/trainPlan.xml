@@ -1,0 +1,63 @@
+<!--
+This file is part of AlvisNLP/ML software.
+Copyright INRA 2009.
+
+Author of this file: Arnaud Ferre
+Related publications:
+- Representation of complex terms in a vector space structured by an ontology for a normalization task, A. Ferre et al., BioNLP, 2017
+- Combining rule-based and embedding-based approaches to normalize textual entities with an ontology, A. Ferre et al., LREC, 2018
+
+Description: 
+
+Inputs:
+- Ontology (obo format)
+- Text in BioNLP format (a1 and a2 files): see http://2016.bionlp-st.org/tasks/bb2 
+- Your CONTES sources: find them at https://github.com/ArnaudFerre/CONTES
+
+Recquired Python lib:
+- Many scientific libs from Anaconda (Numpy, Sklearn, ...): https://anaconda.org/anaconda/python
+
+-->
+
+<alvisnlp-plan id="word2vec">
+  <read>
+		<train class="BioNLPSTReader">
+			<textDir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_train</textDir>
+			<a1Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_train</a1Dir>
+			<a2Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_train</a2Dir>
+			<constantDocumentFeatures>set=train</constantDocumentFeatures>
+		</train>
+   
+		<dev class="BioNLPSTReader">
+			<textDir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_dev</textDir>
+			<a1Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_dev</a1Dir>
+			<a2Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_dev</a2Dir>
+			<constantDocumentFeatures>set=dev</constantDocumentFeatures>
+		</dev>
+	</read>	
+
+
+
+	<import>res://segmentation.plan</import>
+
+
+	
+	<train class="ContesTrain">
+	
+		<contesDir>/home/maiage/arferre/Documents/FINAL/CONTES</contesDir>
+
+		<tokenLayer>words</tokenLayer>
+		<formFeature>form</formFeature>
+		<termLayer>Habitat</termLayer>
+		<conceptFeature>OntoBiotope</conceptFeature>
+		
+		<!-- Inputs: -->
+		<ontology>/home/maiage/arferre/Documents/FINAL/DATA/OntoBiotope_BioNLP-ST-2016.obo</ontology>
+		<wordEmbeddings>/home/maiage/arferre/Documents/FINAL/DATA/microbesCorpus/vst_w01.json</wordEmbeddings>
+		
+		<!-- Outputs -->
+		<regressionMatrix>/home/maiage/arferre/Documents/FINAL/DATA/microbesCorpus/regression_w01.bin</regressionMatrix>
+    
+	</train>
+ 
+</alvisnlp-plan>

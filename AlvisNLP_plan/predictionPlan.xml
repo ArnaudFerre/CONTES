@@ -1,0 +1,104 @@
+<!--
+This file is part of AlvisNLP/ML software.
+Copyright INRA 2009.
+
+Author of this file: Arnaud Ferre
+Related publications:
+- Representation of complex terms in a vector space structured by an ontology for a normalization task, A. Ferre et al., BioNLP, 2017
+- Combining rule-based and embedding-based approaches to normalize textual entities with an ontology, A. Ferre et al., LREC, 2018
+
+Description: 
+
+Inputs:
+- Ontology (obo format)
+- Text in BioNLP format (a1 and a2 files): see http://2016.bionlp-st.org/tasks/bb2 
+- Your CONTES sources: find them at https://github.com/ArnaudFerre/CONTES
+
+Recquired Python lib:
+- Many scientific libs from Anaconda (Numpy, Sklearn, ...): https://anaconda.org/anaconda/python
+
+-->
+
+
+<alvisnlp-plan id="word2vec">
+
+  <test class="BioNLPSTReader">
+		<textDir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_test</textDir>
+		<a1Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_test</a1Dir>
+   
+     <!-- <a2Dir>/home/maiage/arferre/Documents/FINAL/DATA/predict_w01</a2Dir> -->
+		
+		<textBoundAsAnnotations/>
+		<constantDocumentFeatures>set=test</constantDocumentFeatures>
+	</test>
+	
+ 
+
+ 
+	<import>res://segmentation.plan</import>
+
+
+
+
+	<predict class="ContesPredict">
+	
+		<contesDir>/home/maiage/arferre/Documents/FINAL/CONTES</contesDir>
+	
+		<tokenLayer>words</tokenLayer>
+		<formFeature>form</formFeature>
+		<termLayer>Habitat</termLayer>
+		
+		<conceptFeature>predictedOntoBiotope</conceptFeature>
+		
+		<!-- Inputs: -->
+		<ontology>/home/maiage/arferre/Documents/FINAL/DATA/OntoBiotope_BioNLP-ST-2016.obo</ontology>
+		<wordEmbeddings>/home/maiage/arferre/Documents/FINAL/DATA/microbesCorpus/vst_w01.json</wordEmbeddings>
+		<regressionMatrix>/home/maiage/arferre/Documents/FINAL/DATA/microbesCorpus/regression_w01.bin</regressionMatrix>
+		
+	</predict>
+	
+	
+	<export>
+    <human-readable>
+      <label class="OBOMapper">
+      	<oboFiles>/home/maiage/arferre/Documents/FINAL/DATA/OntoBiotope_BioNLP-ST-2016.obo</oboFiles>
+      	<idKeys/>
+      	<target>documents.sections.layer:Habitat[@predictedOntoBiotope]</target>
+      	<form>@predictedOntoBiotope</form>
+      	<nameFeature>predictedLabel</nameFeature>
+      </label>
+      
+      <write class="TabularExport">
+
+      	<outDir>/home/maiage/arferre/Documents/FINAL/DATA/predict_w01/</outDir>
+      	<corpusFile>predict_w01.txt</corpusFile>
+
+      	<lines>documents.sections.layer:Habitat[@predictedOntoBiotope]</lines>
+      	<columns>
+      	  section.document.@id,
+      	  @form,
+      	  @predictedOntoBiotope,
+      	  @predictedLabel
+      	</columns>
+      </write>
+    </human-readable>
+    
+    <a2>
+    	<write class="TabularExport">
+
+    		<outDir>/home/maiage/arferre/Documents/FINAL/DATA/predict_w01/</outDir>
+
+    		<files>documents</files>
+    		<fileName>@id ^ ".a2"</fileName>
+    		<lines>sections.(layer:Habitat|layer:Habitat)</lines>
+    		<columns separator=";">
+    			"N" ^ str:after:T(@id) ;
+    			(if @type == "Bacteria" then "NCBI_Taxonomy" else "OntoBiotope") ^ " Annotation:" ^ @id ^ " Referent:" ^ (if @type == "Bacteria" then "2" else @predictedOntoBiotope)
+    		</columns>
+    	</write>
+    </a2>
+ 
+ 	</export>
+
+    
+</alvisnlp-plan>
