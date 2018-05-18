@@ -81,8 +81,8 @@ class Word2Vec(OptionParser):
         f.close()
 
     def writeTxt(self, fileName):
-        f = open(fileName, 'w')
-        for k, v in self.VST.iteritems():
+        f = open(fileName, 'w', encoding='utf-8')
+        for k, v in self.VST.items():
             f.write(k)
             f.write('\t')
             f.write(str(v))
@@ -94,7 +94,7 @@ class Word2Vec(OptionParser):
             self.readCorpus(stdin)
             return
         for fn in fileNames:
-            f = open(fn)
+            f = open(fn, encoding='utf-8')
             self.readCorpus(f)
             f.close()
             
