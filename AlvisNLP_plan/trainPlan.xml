@@ -26,6 +26,7 @@ Recquired Python lib:
 			<a1Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_train</a1Dir>
 			<a2Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_train</a2Dir>
 			<constantDocumentFeatures>set=train</constantDocumentFeatures>
+			<textBoundAsAnnotations/>
 		</train>
    
 		<dev class="BioNLPSTReader">
@@ -33,6 +34,7 @@ Recquired Python lib:
 			<a1Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_dev</a1Dir>
 			<a2Dir>/home/maiage/arferre/Documents/FINAL/DATA/BioNLP-ST-2016_BB-cat_dev</a2Dir>
 			<constantDocumentFeatures>set=dev</constantDocumentFeatures>
+			<textBoundAsAnnotations/>
 		</dev>
 	</read>	
 
