@@ -30,6 +30,7 @@ Recquired Python lib:
 		
 		<textBoundAsAnnotations/>
 		<constantDocumentFeatures>set=test</constantDocumentFeatures>
+		<textBoundAsAnnotations/>
 	</test>
 	
  
