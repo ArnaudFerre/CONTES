@@ -81,6 +81,8 @@ class Word2Vec(OptionParser):
         f.close()
 
     def writeTxt(self, fileName):
+        if fileName is None:
+            return
         f = open(fileName, 'w', encoding='utf-8')
         for k, v in self.VST.items():
             f.write(k)
