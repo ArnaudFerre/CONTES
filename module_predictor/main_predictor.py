@@ -32,6 +32,7 @@ from utils import word2term, onto
 from optparse import OptionParser
 import json
 from sklearn.externals import joblib
+import gzip
 
 #######################################################################################################
 # Functions
@@ -99,7 +100,10 @@ def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, symbol="___"):
 
 
 def loadJSON(filename):
-    f = open(filename)
+    if filename.endswith('.gzip'):
+        f = gzip.open(filename)
+    else:
+        f = open(filename)
     result = json.load(f)
     f.close()
     return result;

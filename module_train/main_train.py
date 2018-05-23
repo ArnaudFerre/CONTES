@@ -36,6 +36,7 @@ from sys import stderr, stdin
 from optparse import OptionParser
 from utils import word2term, onto
 import json
+import gzip
 
 
 #######################################################################################################
@@ -103,7 +104,10 @@ def train(vst_onlyTokens, dl_terms, dl_associations, ontology):
 
 
 def loadJSON(filename):
-    f = open(filename)
+    if filename.endswith('.gz'):
+        f = gzip.open(filename)
+    else:
+        f = open(filename)
     result = json.load(f)
     f.close()
     return result;
