@@ -26,6 +26,7 @@ import json
 import numpy
 from sys import stderr, stdin
 from optparse import OptionParser
+import gzip
 
 class Word2Vec(OptionParser):
     def __init__(self):
@@ -76,7 +77,10 @@ class Word2Vec(OptionParser):
     def writeJSON(self, fileName):
         if fileName is None:
             return
-        f = open(fileName, 'w')
+        if fileName.endswith('.gz'):
+            f = gzip.open(fileName, 'w')
+        else:
+            f = open(fileName, 'w')
         f.write(json.dumps(self.VST))
         f.close()
 

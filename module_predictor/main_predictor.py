@@ -27,11 +27,12 @@ limitations under the License.
 #######################################################################################################
 # Import modules & set up logging
 #######################################################################################################
-import numpy
-from utils import word2term, onto
-from optparse import OptionParser
-import json
 from sklearn.externals import joblib
+import numpy
+from sys import stderr, stdin
+from optparse import OptionParser
+from utils import word2term, onto
+import json
 import gzip
 
 #######################################################################################################
@@ -100,10 +101,10 @@ def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, symbol="___"):
 
 
 def loadJSON(filename):
-    if filename.endswith('.gzip'):
+    if filename.endswith('.gz'):
         f = gzip.open(filename)
     else:
-        f = open(filename)
+        f = open(filename, encoding='utf-8')
     result = json.load(f)
     f.close()
     return result;
@@ -132,12 +133,22 @@ class Predictor(OptionParser):
             raise Exception('missing --regression-matrix')
         if options.output is None:
             raise Exception('missing --output')
+        stderr.write('loading word embeddings: %s\n' % options.word_vectors)
+        stderr.flush()
         word_vectors = loadJSON(options.word_vectors)
+        stderr.write('loading terms: %s\n' % options.terms)
+        stderr.flush()
         terms = loadJSON(options.terms)
+        stderr.write('loading ontology: %s\n' % options.ontology)
+        stderr.flush()
         ontology = onto.loadOnto(options.ontology)
         vso = onto.ontoToVec(ontology)
+        stderr.write('regression matrix: %s\n' % options.regression_matrix)
+        stderr.flush()
         regression_matrix = joblib.load(options.regression_matrix)
         prediction, _ = predictor(word_vectors, terms, vso, regression_matrix)
+        stderr.write('writing predictions: %s\n' % options.output)
+        stderr.flush()
         f = open(options.output, 'w')
         for _, term_id, concept_id in prediction:
             f.write('%s\t%s\n' % (term_id, concept_id))

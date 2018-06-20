@@ -63,14 +63,21 @@ def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
     X_train = numpy.zeros((nbTerms, sizeVST))
     Y_train = numpy.zeros((nbTerms, sizeVSO))
 
+    #stderr.write('sizeVST = %d\n' % sizeVST)
+    #stderr.write('nbTerms = %d\n' % nbTerms)
+
     i = 0
     for id_term in dl_associations.keys():
+        #stderr.write('id_term = %s\n' % str(id_term))
+        #stderr.write('len(dl_associations[id_term]) = %d\n' % len(dl_associations[id_term]))
         for id_concept in dl_associations[id_term]:
+            #stderr.write('id_concept = %s\n' % str(id_concept))
             termForm = word2term.getFormOfTerm(dl_terms[id_term], symbol)
+            #stderr.write('termForm = %s\n' % str(termForm))
             X_train[i] = vstTerm[termForm]
             Y_train[i] = vso[id_concept]
             i += 1
-
+            break
     return X_train, Y_train
 
 
@@ -107,7 +114,7 @@ def loadJSON(filename):
     if filename.endswith('.gz'):
         f = gzip.open(filename)
     else:
-        f = open(filename)
+        f = open(filename, encoding='utf-8')
     result = json.load(f)
     f.close()
     return result;
@@ -134,18 +141,30 @@ class Train(OptionParser):
             raise Exception('missing --attributions')
         if options.ontology is None:
             raise Exception('missing --ontology')
+        stderr.write('loading word embeddings: %s\n' % options.word_vectors)
+        stderr.flush()
         word_vectors = loadJSON(options.word_vectors)
+        stderr.write('loading terms: %s\n' % options.terms)
+        stderr.flush()
         terms = loadJSON(options.terms)
+        stderr.write('loading attributions: %s\n' % options.attributions)
+        stderr.flush()
         attributions = loadJSON(options.attributions)
+        stderr.write('loading ontology: %s\n' % options.ontology)
+        stderr.flush()
         ontology = onto.loadOnto(options.ontology)
         regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology)
         if options.ontology_vector is not None:
             # translate numpy arrays into lists
             serializable = dict((k, list(v)) for k, v in ontology_vector.iteritems())
+            stderr.write('writing ontology vector: %s\n' % options.ontology_vector)
+            stderr.flush()
             f = open(options.ontology_vector, 'w')
             json.dump(serializable, f)
             f.close()
         if options.regression_matrix is not None:
+            stderr.write('writing regression_matrix: %s\n' % options.regression_matrix)
+            stderr.flush()
             joblib.dump(regression_matrix, options.regression_matrix)
 
 
