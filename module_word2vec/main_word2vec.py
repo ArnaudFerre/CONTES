@@ -38,9 +38,11 @@ class Word2Vec(OptionParser):
         self.add_option('--workers', action='store', type='int', dest='workerNum', default=2, help='Use this many worker threads to train the model (=faster training with multicore machines)')
         self.add_option('--skip-gram', action='store_true', dest='skipGram', default=False, help='Defines the training algorithm, by default CBOW is used, otherwise skip-gram is employed')
         self.add_option('--window-size', action='store', type='int', dest='windowSize', default=2, help='The maximum distance between the current and predicted word within a sentence')
+        self.add_option('--iterations', action='store', type='int', dest='numIteration', default=5, help='Number of iterations (default: %default)')
+        self.add_option('--seed', action='store', type='int', dest='seed', default=1, help='Random number generator seed')
         self.corpus = []
 
-    def buildVector(self, workerNum=8, minCount=0, vectSize=200, skipGram=True, windowSize=2, learningRate=0.05, numIteration=5, negativeSampling=5, subSampling=0.001):
+    def buildVector(self, workerNum=8, minCount=0, vectSize=200, skipGram=True, windowSize=2, learningRate=0.05, numIteration=5, negativeSampling=5, subSampling=0.001, seed=1):
         """
         Description: Implementation of the neuronal method Word2Vec to create word vectors based on the distributional
         semantics hypothesis.
@@ -64,13 +66,13 @@ class Word2Vec(OptionParser):
         """
         model = gensim.models.Word2Vec(self.corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
                                        window=windowSize, alpha=learningRate, iter=numIteration, negative=negativeSampling,
-                                       sample=subSampling)
+                                       sample=subSampling, seed=seed)
         self.VST = dict((k, list(numpy.float_(npf32) for npf32 in model.wv[k])) for k in model.wv.vocab.keys())
 
     def run(self):
         options, args = self.parse_args()
         self.readCorpusFiles(args)
-        self.buildVector(minCount=options.minCount, vectSize=options.vectSize, workerNum=options.workerNum, skipGram=options.skipGram, windowSize=options.windowSize)
+        self.buildVector(minCount=options.minCount, vectSize=options.vectSize, workerNum=options.workerNum, skipGram=options.skipGram, windowSize=options.windowSize, numIteration=options.numIteration, seed=options.seed)
         self.writeJSON(options.json)
         self.writeTxt(options.txt)
         
@@ -80,8 +82,9 @@ class Word2Vec(OptionParser):
         if fileName.endswith('.gz'):
             f = gzip.open(fileName, 'w')
         else:
-            f = open(fileName, 'w')
-        f.write(json.dumps(self.VST))
+            f = open(fileName, 'w', encoding='utf-8')
+        #json.dump(self.VST, f, ensure_ascii=True)
+        f.write(json.dumps(self.VST).encode('utf-8'))
         f.close()
 
     def writeTxt(self, fileName):
