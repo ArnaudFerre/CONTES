@@ -172,9 +172,9 @@ class Train(OptionParser):
                 f.close()
             if first and options.regression_matrix is not None:
                 first = False
-                stderr.write('writing regression_matrix: %s\n' % options.regression_matrix)
+                stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
                 stderr.flush()
-                joblib.dump(regression_matrix, options.regression_matrix)
+                joblib.dump(regression_matrix, regression_matrix_i)
 
 
             
