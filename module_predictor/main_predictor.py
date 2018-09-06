@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 # coding: utf-8
 
@@ -55,14 +55,14 @@ def getNearestConcept(vecTerm, vso):
     :param vso: A VSO (dict() -> {"id" : [vector], ...}
     :return: the id of the nearest concept.
     """
-    max = 0
+    maxsim = 0
     mostSimilarConcept = None
     for id_concept in vso.keys():
-        dist = getCosSimilarity(vecTerm, vso[id_concept])
-        if dist > max:
-            max = dist
+        sim = getCosSimilarity(vecTerm, vso[id_concept])
+        if sim > maxsim:
+            maxsim = sim
             mostSimilarConcept = id_concept
-    return mostSimilarConcept
+    return mostSimilarConcept, maxsim
 
 
 
@@ -94,7 +94,8 @@ def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, symbol="___"):
 
     for id_term in dl_terms.keys():
         termForm = word2term.getFormOfTerm(dl_terms[id_term], symbol)
-        prediction = (termForm, id_term, result[termForm])
+        cat, sim = result[termForm]
+        prediction = (termForm, id_term, cat, sim)
         lt_predictions.append(prediction)
 
     return lt_predictions, l_unknownToken
@@ -143,6 +144,7 @@ class Predictor(OptionParser):
         stderr.flush()
         ontology = onto.loadOnto(options.ontology)
         vso = onto.ontoToVec(ontology)
+<<<<<<< Updated upstream
         stderr.write('regression matrix: %s\n' % options.regression_matrix)
         stderr.flush()
         regression_matrix = joblib.load(options.regression_matrix)
@@ -153,6 +155,22 @@ class Predictor(OptionParser):
         for _, term_id, concept_id in prediction:
             f.write('%s\t%s\n' % (term_id, concept_id))
         f.close()
+=======
+        for terms_i, regression_matrix_i, output_i in zip(options.terms, options.regression_matrix, options.output):
+            stderr.write('loading terms: %s\n' % terms_i)
+            stderr.flush()
+            terms = loadJSON(terms_i)
+            stderr.write('regression matrix: %s\n' % regression_matrix_i)
+            stderr.flush()
+            regression_matrix = joblib.load(regression_matrix_i)
+            prediction, _ = predictor(word_vectors, terms, vso, regression_matrix)
+            stderr.write('writing predictions: %s\n' % output_i)
+            stderr.flush()
+            f = open(output_i, 'w')
+            for _, term_id, concept_id, similarity in prediction:
+                f.write('%s\t%s\t%f\n' % (term_id, concept_id, similarity))
+            f.close()
+>>>>>>> Stashed changes
 
 if __name__ == '__main__':
     Predictor().run()
