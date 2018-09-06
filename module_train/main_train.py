@@ -162,7 +162,8 @@ class Train(OptionParser):
             stderr.flush()
             attributions = loadJSON(attributions_i)
             regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology)
-            if options.ontology_vector is not None:
+            if first and options.ontology_vector is not None:
+                first = False
                 # translate numpy arrays into lists
                 serializable = dict((k, list(v)) for k, v in ontology_vector.iteritems())
                 stderr.write('writing ontology vector: %s\n' % options.ontology_vector)
@@ -170,8 +171,7 @@ class Train(OptionParser):
                 f = open(options.ontology_vector, 'w')
                 json.dump(serializable, f)
                 f.close()
-            if first and options.regression_matrix is not None:
-                first = False
+            if options.regression_matrix is not None:
                 stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
                 stderr.flush()
                 joblib.dump(regression_matrix, regression_matrix_i)
