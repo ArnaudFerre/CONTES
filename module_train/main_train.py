@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 # coding: utf-8
 
@@ -114,7 +114,7 @@ def loadJSON(filename):
     if filename.endswith('.gz'):
         f = gzip.open(filename)
     else:
-        f = open(filename, encoding='utf-8')
+        f = open(filename)
     result = json.load(f)
     f.close()
     return result;
@@ -123,11 +123,11 @@ class Train(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
         self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors file as produced by word2vec')
-        self.add_option('--terms', action='store', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
-        self.add_option('--attributions', action='store', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
+        self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
+        self.add_option('--attributions', action='append', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
+        self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file')
         self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
         self.add_option('--ontology-vector', action='store', type='string', dest='ontology_vector', help='path to the ontology vector file')
-        self.add_option('--regression-matrix', action='store', type='string', dest='regression_matrix', help='path to the regression matrix file')
         
     def run(self):
         options, args = self.parse_args()
@@ -135,37 +135,46 @@ class Train(OptionParser):
             raise Exception('stray arguments: ' + ' '.join(args))
         if options.word_vectors is None:
             raise Exception('missing --word-vectors')
-        if options.terms is None:
-            raise Exception('missing --terms')
-        if options.attributions is None:
-            raise Exception('missing --attributions')
         if options.ontology is None:
             raise Exception('missing --ontology')
+        if not options.terms:
+            raise Exception('missing --terms')
+        if not options.attributions:
+            raise Exception('missing --attributions')
+        if not options.regression_matrix:
+            raise Exception('missing --regression-matrix')
+        if len(options.terms) != len(options.attributions):
+            raise Exception('there must be the same number of --terms and --attributions')
+        if len(options.terms) != len(options.regression_matrix):
+            raise Exception('there must be the same number of --terms and --regression-matrix')
         stderr.write('loading word embeddings: %s\n' % options.word_vectors)
         stderr.flush()
         word_vectors = loadJSON(options.word_vectors)
-        stderr.write('loading terms: %s\n' % options.terms)
-        stderr.flush()
-        terms = loadJSON(options.terms)
-        stderr.write('loading attributions: %s\n' % options.attributions)
-        stderr.flush()
-        attributions = loadJSON(options.attributions)
         stderr.write('loading ontology: %s\n' % options.ontology)
         stderr.flush()
         ontology = onto.loadOnto(options.ontology)
-        regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology)
-        if options.ontology_vector is not None:
-            # translate numpy arrays into lists
-            serializable = dict((k, list(v)) for k, v in ontology_vector.iteritems())
-            stderr.write('writing ontology vector: %s\n' % options.ontology_vector)
+        first = True
+        for terms_i, attributions_i, regression_matrix_i in zip(options.terms, options.attributions, options.regression_matrix):
+            stderr.write('loading terms: %s\n' % terms_i)
             stderr.flush()
-            f = open(options.ontology_vector, 'w')
-            json.dump(serializable, f)
-            f.close()
-        if options.regression_matrix is not None:
-            stderr.write('writing regression_matrix: %s\n' % options.regression_matrix)
+            terms = loadJSON(terms_i)
+            stderr.write('loading attributions: %s\n' % attributions_i)
             stderr.flush()
-            joblib.dump(regression_matrix, options.regression_matrix)
+            attributions = loadJSON(attributions_i)
+            regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology)
+            if options.ontology_vector is not None:
+                # translate numpy arrays into lists
+                serializable = dict((k, list(v)) for k, v in ontology_vector.iteritems())
+                stderr.write('writing ontology vector: %s\n' % options.ontology_vector)
+                stderr.flush()
+                f = open(options.ontology_vector, 'w')
+                json.dump(serializable, f)
+                f.close()
+            if first and options.regression_matrix is not None:
+                first = False
+                stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
+                stderr.flush()
+                joblib.dump(regression_matrix, regression_matrix_i)
 
 
             

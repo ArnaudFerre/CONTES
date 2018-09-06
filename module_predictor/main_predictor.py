@@ -115,10 +115,10 @@ class Predictor(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
         self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors file as produced by word2vec')
-        self.add_option('--terms', action='store', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
-        self.add_option('--regression-matrix', action='store', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
-        self.add_option('--output', action='store', type='string', dest='output', help='file where to write predictions')
+        self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
+        self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
+        self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
         
     def run(self):
         options, args = self.parse_args()
@@ -126,36 +126,25 @@ class Predictor(OptionParser):
             raise Exception('stray arguments: ' + ' '.join(args))
         if options.word_vectors is None:
             raise Exception('missing --word-vectors')
-        if options.terms is None:
-            raise Exception('missing --terms')
         if options.ontology is None:
             raise Exception('missing --ontology')
-        if options.regression_matrix is None:
+        if not(options.terms):
+            raise Exception('missing --terms')
+        if not(options.regression_matrix):
             raise Exception('missing --regression-matrix')
-        if options.output is None:
+        if not(options.output):
             raise Exception('missing --output')
+        if len(options.terms) != len(options.regression_matrix):
+            raise Exception('there must be the same number of --terms and --regression-matrix')
+        if len(options.terms) != len(options.output):
+            raise Exception('there must be the same number of --terms and --output')
         stderr.write('loading word embeddings: %s\n' % options.word_vectors)
         stderr.flush()
         word_vectors = loadJSON(options.word_vectors)
-        stderr.write('loading terms: %s\n' % options.terms)
-        stderr.flush()
-        terms = loadJSON(options.terms)
         stderr.write('loading ontology: %s\n' % options.ontology)
         stderr.flush()
         ontology = onto.loadOnto(options.ontology)
         vso = onto.ontoToVec(ontology)
-<<<<<<< Updated upstream
-        stderr.write('regression matrix: %s\n' % options.regression_matrix)
-        stderr.flush()
-        regression_matrix = joblib.load(options.regression_matrix)
-        prediction, _ = predictor(word_vectors, terms, vso, regression_matrix)
-        stderr.write('writing predictions: %s\n' % options.output)
-        stderr.flush()
-        f = open(options.output, 'w')
-        for _, term_id, concept_id in prediction:
-            f.write('%s\t%s\n' % (term_id, concept_id))
-        f.close()
-=======
         for terms_i, regression_matrix_i, output_i in zip(options.terms, options.regression_matrix, options.output):
             stderr.write('loading terms: %s\n' % terms_i)
             stderr.flush()
@@ -170,7 +159,6 @@ class Predictor(OptionParser):
             for _, term_id, concept_id, similarity in prediction:
                 f.write('%s\t%s\t%f\n' % (term_id, concept_id, similarity))
             f.close()
->>>>>>> Stashed changes
 
 if __name__ == '__main__':
     Predictor().run()
