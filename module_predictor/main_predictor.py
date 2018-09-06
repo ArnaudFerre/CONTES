@@ -64,8 +64,6 @@ def getNearestConcept(vecTerm, vso):
             mostSimilarConcept = id_concept
     return mostSimilarConcept, maxsim
 
-
-
 def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, symbol="___"):
     """
     Description: From a calculated linear projection from the training module, applied it to predict a concept for each
@@ -149,9 +147,11 @@ class Predictor(OptionParser):
             stderr.write('loading terms: %s\n' % terms_i)
             stderr.flush()
             terms = loadJSON(terms_i)
-            stderr.write('regression matrix: %s\n' % regression_matrix_i)
+            stderr.write('loading regression matrix: %s\n' % regression_matrix_i)
             stderr.flush()
             regression_matrix = joblib.load(regression_matrix_i)
+            stderr.write('predicting\n')
+            stderr.flush()
             prediction, _ = predictor(word_vectors, terms, vso, regression_matrix)
             stderr.write('writing predictions: %s\n' % output_i)
             stderr.flush()
