@@ -34,37 +34,25 @@ from optparse import OptionParser
 from utils import word2term, onto
 import json
 import gzip
+from sklearn.neighbors import NearestNeighbors
 
-#######################################################################################################
-# Functions
-#######################################################################################################
-def getCosSimilarity(vec1, vec2):
-    """
-    Description: Calculates the cosine similarity between 2 vectors.
-    """
-    from scipy import spatial
-    result = 1 - spatial.distance.cosine(vec1, vec2)
-    return result
+class VSONN(NearestNeighbors):
+    def __init__(self, vso, metric):
+        NearestNeighbors.__init__(self, algorithm='auto', metric=metric)
+        self.vso = vso
+        self.concepts = tuple(vso.keys())
+        self.concept_vectors = list(vso.values())
+        self.fit(self.concept_vectors)
+
+    def nearest_concept(self, vecTerm):
+        r = self.kneighbors([vecTerm], 1, return_distance=True)
+        #stderr.write('r = %s\n' % str(r))
+        return self.concepts[r[1][0][0]], (1 - r[0][0][0])
 
 
-def getNearestConcept(vecTerm, vso):
-    """
-    Description: For now, calculates all the cosine similarity between a vector and the concept-vectors of the VSO,
-        then, gives the nearest.
-    :param vecTerm: A vector in the VSO.
-    :param vso: A VSO (dict() -> {"id" : [vector], ...}
-    :return: the id of the nearest concept.
-    """
-    maxsim = 0
-    mostSimilarConcept = None
-    for id_concept in vso.keys():
-        sim = getCosSimilarity(vecTerm, vso[id_concept])
-        if sim > maxsim:
-            maxsim = sim
-            mostSimilarConcept = id_concept
-    return mostSimilarConcept, maxsim
 
-def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, symbol="___"):
+
+def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, metric, symbol='___'):
     """
     Description: From a calculated linear projection from the training module, applied it to predict a concept for each
         terms in parameters (dl_terms).
@@ -83,12 +71,12 @@ def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, symbol="___"):
     result = dict()
 
     vsoTerms = dict()
+    vsoNN = VSONN(vso, metric)
     for id_term in dl_terms.keys():
         termForm = word2term.getFormOfTerm(dl_terms[id_term], symbol)
         x = vstTerm[termForm].reshape(1, -1)
         vsoTerms[termForm] = transformationParam.predict(x)[0]
-
-        result[termForm] = getNearestConcept(vsoTerms[termForm], vso)
+        result[termForm] = vsoNN.nearest_concept(vsoTerms[termForm])
 
     for id_term in dl_terms.keys():
         termForm = word2term.getFormOfTerm(dl_terms[id_term], symbol)
@@ -117,6 +105,8 @@ class Predictor(OptionParser):
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
         self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
+
+        self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: cosine)')
         
     def run(self):
         options, args = self.parse_args()
@@ -152,7 +142,7 @@ class Predictor(OptionParser):
             regression_matrix = joblib.load(regression_matrix_i)
             stderr.write('predicting\n')
             stderr.flush()
-            prediction, _ = predictor(word_vectors, terms, vso, regression_matrix)
+            prediction, _ = predictor(word_vectors, terms, vso, regression_matrix, options.metric)
             stderr.write('writing predictions: %s\n' % output_i)
             stderr.flush()
             f = open(output_i, 'w')
