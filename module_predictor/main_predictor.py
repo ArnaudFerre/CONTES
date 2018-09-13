@@ -106,7 +106,7 @@ class Predictor(OptionParser):
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
         self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
 
-        self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: cosine)')
+        self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: %default)')
         
     def run(self):
         options, args = self.parse_args()
