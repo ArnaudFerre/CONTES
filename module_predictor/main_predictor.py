@@ -43,11 +43,15 @@ class VSONN(NearestNeighbors):
         self.concepts = tuple(vso.keys())
         self.concept_vectors = list(vso.values())
         self.fit(self.concept_vectors)
+        if metric == 'cosine':
+            self.sim = (lambda x: 1-x)
+        else:
+            self.sim = (lambda x: 1/x)
 
     def nearest_concept(self, vecTerm):
         r = self.kneighbors([vecTerm], 1, return_distance=True)
         #stderr.write('r = %s\n' % str(r))
-        return self.concepts[r[1][0][0]], (1 - r[0][0][0])
+        return self.concepts[r[1][0][0]], self.sim(r[0][0][0])
 
 
 
@@ -107,7 +111,7 @@ class Predictor(OptionParser):
         self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
 
         self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: %default)')
-        
+
     def run(self):
         options, args = self.parse_args()
         if len(args) > 0:
