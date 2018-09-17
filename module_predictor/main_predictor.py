@@ -35,23 +35,46 @@ from utils import word2term, onto
 import json
 import gzip
 from sklearn.neighbors import NearestNeighbors
+from scipy.spatial.distance import cosine
+from sklearn.preprocessing import normalize
+
+
+def metric_internal(metric):
+    if metric == 'cosine':
+        return 'euclidean'
+    if metric == 'cosine-brute':
+        return 'cosine'
+    return metric
+
+def metric_norm(metric, concept_vectors):
+    if metric == 'cosine':
+        return normalize(concept_vectors)
+    return concept_vectors
+
+def metric_sim(metric, d, vecTerm, vecConcept):
+    if metric == 'cosine':
+        return 1 - cosine(vecTerm, vecConcept)
+    if metric == 'cosine-brute':
+        return 1 - d
+    return 1 / d
+
+
 
 class VSONN(NearestNeighbors):
     def __init__(self, vso, metric):
-        NearestNeighbors.__init__(self, algorithm='auto', metric=metric)
+        NearestNeighbors.__init__(self, algorithm='auto', metric=metric_internal(metric))
+        self.original_metric = metric
         self.vso = vso
         self.concepts = tuple(vso.keys())
         self.concept_vectors = list(vso.values())
-        self.fit(self.concept_vectors)
-        if metric == 'cosine':
-            self.sim = (lambda x: 1-x)
-        else:
-            self.sim = (lambda x: 1/x)
+        self.fit(metric_norm(metric, self.concept_vectors))
 
     def nearest_concept(self, vecTerm):
         r = self.kneighbors([vecTerm], 1, return_distance=True)
         #stderr.write('r = %s\n' % str(r))
-        return self.concepts[r[1][0][0]], self.sim(r[0][0][0])
+        d = r[0][0][0]
+        idx = r[1][0][0]
+        return self.concepts[idx], metric_sim(self.original_metric, d, vecTerm, self.concept_vectors[idx])
 
 
 
