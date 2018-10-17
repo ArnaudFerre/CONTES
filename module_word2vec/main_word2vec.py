@@ -84,7 +84,8 @@ class Word2Vec(OptionParser):
         else:
             f = open(fileName, 'w', encoding='utf-8')
         #json.dump(self.VST, f, ensure_ascii=True)
-        f.write(json.dumps(self.VST))
+        #f.write(json.dumps(self.VST))
+        f.write(json.dumps(self.VST).encode('UTF-8'))
         f.close()
 
     def writeTxt(self, fileName):

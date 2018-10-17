@@ -37,7 +37,8 @@ from optparse import OptionParser
 from utils import word2term, onto
 import json
 import gzip
-
+from os.path import dirname, exists
+from os import makedirs
 
 #######################################################################################################
 # Functions
@@ -114,7 +115,8 @@ def loadJSON(filename):
     if filename.endswith('.gz'):
         f = gzip.open(filename)
     else:
-        f = open(filename)
+        f = open(filename, encoding='utf-8')
+        #f = open(filename)
     result = json.load(f)
     f.close()
     return result;
@@ -174,6 +176,9 @@ class Train(OptionParser):
             if options.regression_matrix is not None:
                 stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
                 stderr.flush()
+                d = dirname(regression_matrix_i)
+                if not exists(d):
+                    makedirs(d)
                 joblib.dump(regression_matrix, regression_matrix_i)
 
 
