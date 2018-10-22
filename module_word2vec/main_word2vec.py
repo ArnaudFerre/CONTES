@@ -33,6 +33,7 @@ class Word2Vec(OptionParser):
         OptionParser.__init__(self, usage='usage: %prog [options]')
         self.add_option('--json', action='store', type='string', dest='json', help='JSON output filename')
         self.add_option('--txt', action='store', type='string', dest='txt', help='TXT output filename')
+        self.add_option('--bin', action='store', type='string', dest='bin', help='binary output filename')
         self.add_option('--min-count', action='store', type='int', dest='minCount', default=0, help='Ignore all words with total frequency lower than this')
         self.add_option('--vector-size', action='store', type='int', dest='vectSize', default=300, help='The dimensionality of the feature vectors, often effective between 100 and 300')
         self.add_option('--workers', action='store', type='int', dest='workerNum', default=2, help='Use this many worker threads to train the model (=faster training with multicore machines)')
@@ -64,10 +65,10 @@ class Word2Vec(OptionParser):
 
         For more details, see: https://radimrehurek.com/gensim/models/word2vec.html
         """
-        model = gensim.models.Word2Vec(self.corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
+        self.vst_model = gensim.models.Word2Vec(self.corpus, min_count=minCount, size=vectSize, workers=workerNum, sg=skipGram,
                                        window=windowSize, alpha=learningRate, iter=numIteration, negative=negativeSampling,
                                        sample=subSampling, seed=seed)
-        self.VST = dict((k, list(numpy.float_(npf32) for npf32 in model.wv[k])) for k in model.wv.vocab.keys())
+        self.VST = dict((k, list(numpy.float_(npf32) for npf32 in self.vst_model.wv[k])) for k in self.vst_model.wv.vocab.keys())
 
     def run(self):
         options, args = self.parse_args()
@@ -75,6 +76,12 @@ class Word2Vec(OptionParser):
         self.buildVector(minCount=options.minCount, vectSize=options.vectSize, workerNum=options.workerNum, skipGram=options.skipGram, windowSize=options.windowSize, numIteration=options.numIteration, seed=options.seed)
         self.writeJSON(options.json)
         self.writeTxt(options.txt)
+        self.writeBin(options.bin)
+
+    def writeBin(self, fileName):
+        if fileName is None:
+            return
+        self.vst_model.save(fileName)
         
     def writeJSON(self, fileName):
         if fileName is None:
@@ -82,7 +89,8 @@ class Word2Vec(OptionParser):
         if fileName.endswith('.gz'):
             f = gzip.open(fileName, 'w')
         else:
-            f = open(fileName, 'w', encoding='utf-8')
+            #f = open(fileName, 'w', encoding='utf-8')
+            f = open(fileName, 'w')
         #json.dump(self.VST, f, ensure_ascii=True)
         #f.write(json.dumps(self.VST))
         f.write(json.dumps(self.VST).encode('UTF-8'))
@@ -91,7 +99,8 @@ class Word2Vec(OptionParser):
     def writeTxt(self, fileName):
         if fileName is None:
             return
-        f = open(fileName, 'w', encoding='utf-8')
+        #f = open(fileName, 'w', encoding='utf-8')
+        f = open(fileName, 'w')
         for k, v in self.VST.items():
             f.write(k)
             f.write('\t')
@@ -104,7 +113,8 @@ class Word2Vec(OptionParser):
             self.readCorpus(stdin)
             return
         for fn in fileNames:
-            f = open(fn, encoding='utf-8')
+            #f = open(fn, encoding='utf-8')
+            f = open(fn)
             self.readCorpus(f)
             f.close()
             
