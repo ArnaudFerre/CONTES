@@ -44,7 +44,15 @@ def loadOnto(ontoPath):
     return onto
 
 
-def ontoToVec(onto):
+
+def ancestor_level(concept, level, levelmap):
+    levelmap[concept.id] = level
+    for parent in concept.parents:
+        ancestor_level(parent, level+1, levelmap)
+    return levelmap
+
+
+def ontoToVec(onto, factor=1.0):
     """
     Description: Create a vector space of the ontology. It uses hierarchical information to do this.
     :param onto: A Pronto object representing an ontology.
@@ -56,17 +64,19 @@ def ontoToVec(onto):
     d_assoDim = dict()
 
     for i, concept in enumerate(onto):
-        #id_concept = str(concept)
         id_concept = concept.id
         vso[id_concept] = numpy.zeros(size)
         d_assoDim[id_concept] = i
-        vso[id_concept][d_assoDim[id_concept]] = 1
+        #vso[id_concept][d_assoDim[id_concept]] = 1
 
     for concept in onto:
+        levelmap = ancestor_level(concept, 0, {})
         id_concept = concept.id
-        for parent in concept.rparents(-1, True):
-            id_parent = parent.id
-            vso[id_concept][d_assoDim[id_parent]] = 1
+        for id_ancestor, level in levelmap.items():
+            vso[id_concept][d_assoDim[id_ancestor]] = factor**level
+        # for parent in concept.rparents(-1, True):
+        #     id_parent = parent.id
+        #     vso[id_concept][d_assoDim[id_parent]] = 1
 
     return vso
 

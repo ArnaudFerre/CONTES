@@ -130,6 +130,7 @@ class Predictor(OptionParser):
         self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors file as produced by word2vec')
         self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
+        self.add_option('--factor', action='append', type='float', dest='factors', default=[], help='parent concept weight factor (default: 1.0)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
         self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
 
@@ -153,14 +154,21 @@ class Predictor(OptionParser):
             raise Exception('there must be the same number of --terms and --regression-matrix')
         if len(options.terms) != len(options.output):
             raise Exception('there must be the same number of --terms and --output')
+        if len(options.factors) > len(options.terms):
+            raise Exception('there must be at least as many --terms as --factor')
+        if len(options.factors) < len(options.terms):
+            n = len(options.terms) - len(options.factors)
+            stderr.write('defaulting %d factors to 1.0\n' % n)
+            stderr.flush()
+            options.factors.extend([1.0]*n)
         stderr.write('loading word embeddings: %s\n' % options.word_vectors)
         stderr.flush()
         word_vectors = loadJSON(options.word_vectors)
         stderr.write('loading ontology: %s\n' % options.ontology)
         stderr.flush()
         ontology = onto.loadOnto(options.ontology)
-        vso = onto.ontoToVec(ontology)
-        for terms_i, regression_matrix_i, output_i in zip(options.terms, options.regression_matrix, options.output):
+        for terms_i, regression_matrix_i, output_i, factor_i in zip(options.terms, options.regression_matrix, options.output, options.factors):
+            vso = onto.ontoToVec(ontology, factor_i)
             stderr.write('loading terms: %s\n' % terms_i)
             stderr.flush()
             terms = loadJSON(terms_i)

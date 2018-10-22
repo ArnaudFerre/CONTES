@@ -83,7 +83,7 @@ def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
 
 
 
-def train(vst_onlyTokens, dl_terms, dl_associations, ontology):
+def train(vst_onlyTokens, dl_terms, dl_associations, ontology, factor):
     """
     Description: Main module which calculates the regression parameters (a matrix)
     :param vst_onlyTokens: An initial VST containing only tokens and associated vectors.
@@ -100,7 +100,7 @@ def train(vst_onlyTokens, dl_terms, dl_associations, ontology):
     reg = linear_model.LinearRegression()
     # See parameters of the linear regression (fit_intercept, normalize, n_jobs)
 
-    vso = onto.ontoToVec(ontology)
+    vso = onto.ontoToVec(ontology, factor)
 
     vstTerm, l_unknownToken = word2term.wordVST2TermVST(vst_onlyTokens, dl_terms)
 
@@ -115,8 +115,8 @@ def loadJSON(filename):
     if filename.endswith('.gz'):
         f = gzip.open(filename)
     else:
-        f = open(filename, encoding='utf-8')
-        #f = open(filename)
+        #f = open(filename, encoding='utf-8')
+        f = open(filename)
     result = json.load(f)
     f.close()
     return result;
@@ -127,6 +127,7 @@ class Train(OptionParser):
         self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors file as produced by word2vec')
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--attributions', action='append', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
+        self.add_option('--factor', action='append', type='float', dest='factors', default=[], help='parent concept weight factor (default: 1.0)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file')
         self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
         self.add_option('--ontology-vector', action='store', type='string', dest='ontology_vector', help='path to the ontology vector file')
@@ -149,6 +150,13 @@ class Train(OptionParser):
             raise Exception('there must be the same number of --terms and --attributions')
         if len(options.terms) != len(options.regression_matrix):
             raise Exception('there must be the same number of --terms and --regression-matrix')
+        if len(options.factors) > len(options.terms):
+            raise Exception('there must be at least as many --terms as --factor')
+        if len(options.factors) < len(options.terms):
+            n = len(options.terms) - len(options.factors)
+            stderr.write('defaulting %d factors to 1.0\n' % n)
+            stderr.flush()
+            options.factors.extend([1.0]*n)
         stderr.write('loading word embeddings: %s\n' % options.word_vectors)
         stderr.flush()
         word_vectors = loadJSON(options.word_vectors)
@@ -156,14 +164,14 @@ class Train(OptionParser):
         stderr.flush()
         ontology = onto.loadOnto(options.ontology)
         first = True
-        for terms_i, attributions_i, regression_matrix_i in zip(options.terms, options.attributions, options.regression_matrix):
+        for terms_i, attributions_i, regression_matrix_i, factor_i in zip(options.terms, options.attributions, options.regression_matrix, options.factors):
             stderr.write('loading terms: %s\n' % terms_i)
             stderr.flush()
             terms = loadJSON(terms_i)
             stderr.write('loading attributions: %s\n' % attributions_i)
             stderr.flush()
             attributions = loadJSON(attributions_i)
-            regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology)
+            regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology, factor_i)
             if first and options.ontology_vector is not None:
                 first = False
                 # translate numpy arrays into lists
@@ -177,7 +185,7 @@ class Train(OptionParser):
                 stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
                 stderr.flush()
                 d = dirname(regression_matrix_i)
-                if not exists(d):
+                if not exists(d) and d != '':
                     makedirs(d)
                 joblib.dump(regression_matrix, regression_matrix_i)
 
