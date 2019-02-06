@@ -15,8 +15,8 @@ build:
 
 source:
   git_rev: 0.5	
-  git_url: https://github.com/ArnaudFerre/CONTES.git
-  md5: dd34a1b560832b1edea40789b720dca0
+  git_url: https://github.com/mandiayba/CONTES.git
+  md5: 19a848efa95029646566f4ea84f3b6e8
 
 requirements:
   build:
