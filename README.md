@@ -27,9 +27,13 @@ source activate contesenv
 
 `
 python module_word2vec/main_word2vec.py
+`
 
+`
 python module_train/main_train.py
+`
 
+`
 python module_predictor/main_predictor.py
 `
 
