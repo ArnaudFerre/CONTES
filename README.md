@@ -14,7 +14,7 @@ git clone https://github.com/ArnaudFerre/CONTES.git
 cd CONTES
 `
 
-2. Create the Virtual Env
+2. Create the Virtual Env, [You need anaconda to be installed](https://conda.io/en/latest/miniconda.html)
 
 `
 conda env create -f contes-env.yml
