@@ -1,6 +1,28 @@
 # CONTES
-CONcept-TErm System
+CONcept-TErm System method to normalize multi-word terms with concepts from a domain-specific ontology (See: [paper](http://www.aclweb.org/anthology/W17-2312)).
 
-|gensim| |sklearn|
+The system is based on |gensim| |sklearn|
 
-See: http://www.aclweb.org/anthology/W17-2312 
+## Intallation
+1. Get CONTES from github
+'''
+git clone https://github.com/ArnaudFerre/CONTES.git \
+cd CONTES
+'''
+
+2. Create the Virtual Env
+
+'''
+conda env create -f contes-env.yml
+'''
+
+3. Activate the Virtual Env
+'''
+source activate contesenv
+'''
+
+4. Test
+
+
+
+## Usage
