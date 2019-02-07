@@ -55,5 +55,11 @@ python module_train/main_train.py --word-vectors test-data/embeddings/microbio_f
 
 3. Predict from a Contes Model
 
-`
-`
+```
+python module_predictor/main_predictor.py \
+--word-vectors test-data/embeddings/microbio_filtered_100/word-vectors.json.gz \
+--terms test-data/input-corpus/terms_0.json \
+--regression-matrix test-data/models/bb \
+--ontology test-data/OntoBiotope_BioNLP-ST-2016.obo \
+--output test-data/predictions/output.json
+``` 
