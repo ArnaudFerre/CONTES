@@ -45,13 +45,13 @@ python module_predictor/main_predictor.py
 
 2. Train a Contes model
 
-`
+```
 python module_train/main_train.py --word-vectors test-data/embeddings/microbio_filtered_100/word-vectors.json.gz \
 --terms test-data/input-corpus/terms_0.json \
 --attributions test-data/input-corpus/attributions_0.json \
 --regression-matrix test-data/models/bb \
 --ontology test-data/OntoBiotope_BioNLP-ST-2016.obo
-`
+```
 
 3. Predict from a Contes Model
 
