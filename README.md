@@ -55,7 +55,8 @@ python module_word2vec/main_word2vec.py \
 * Train a Contes model
 
 ```
-python module_train/main_train.py --word-vectors test-data/embeddings/microbio_filtered_100/word-vectors.json.gz \
+python module_train/main_train.py  \
+--word-vectors test-data/embeddings/microbio_filtered_100/word-vectors.json.gz \
 --terms test-data/input-corpus/terms_0.json \
 --attributions test-data/input-corpus/attributions_0.json \
 --regression-matrix test-data/models/bb \
