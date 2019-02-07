@@ -5,10 +5,10 @@ The system is based on |gensim| |sklearn|
 
 ## Intallation
 1. Get CONTES from github
-'''
+`
 git clone https://github.com/ArnaudFerre/CONTES.git \
 cd CONTES
-'''
+`
 
 2. Create the Virtual Env
 
