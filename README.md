@@ -7,7 +7,10 @@ The system is based on |gensim| |sklearn|
 1. Get CONTES from github
 
 `
-git clone https://github.com/ArnaudFerre/CONTES.git \
+git clone https://github.com/ArnaudFerre/CONTES.git
+`
+
+`
 cd CONTES
 `
 
