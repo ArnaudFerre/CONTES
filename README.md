@@ -42,8 +42,17 @@ python module_predictor/main_predictor.py
 
 
 ## Usage
+* Calculate word embeddings
 
-2. Train a Contes model
+```
+python module_word2vec/main_word2vec.py \
+--json word-vectors.json \
+--min-count 0 \
+--vector-size 100 \
+--window-size 2 < test-data/corpus.txt
+```
+
+* Train a Contes model
 
 ```
 python module_train/main_train.py --word-vectors test-data/embeddings/microbio_filtered_100/word-vectors.json.gz \
@@ -53,7 +62,7 @@ python module_train/main_train.py --word-vectors test-data/embeddings/microbio_f
 --ontology test-data/OntoBiotope_BioNLP-ST-2016.obo
 ```
 
-3. Predict from a Contes Model
+* Predict from a Contes Model
 
 ```
 python module_predictor/main_predictor.py \
