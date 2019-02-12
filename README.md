@@ -26,18 +26,18 @@ conda env create -f contes-env.yml
 source activate contesenv
 `
 
-4. Test
+4. Tests
 
 `
-python module_word2vec/main_word2vec.py
-`
-
-`
-python module_train/main_train.py
+python module_word2vec/main_word2vec.py --help
 `
 
 `
-python module_predictor/main_predictor.py
+python module_train/main_train.py --help
+`
+
+`
+python module_predictor/main_predictor.py --help
 `
 
 
