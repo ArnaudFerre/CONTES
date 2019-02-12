@@ -1,5 +1,5 @@
 # CONTES
-CONcept-TErm System method to normalize multi-word terms with concepts from a domain-specific ontology (See: [paper](http://www.aclweb.org/anthology/W17-2312)).
+CONcept-TErm System method to normalize multi-word terms with concepts from a domain-specific ontology (See [paper](http://www.aclweb.org/anthology/W17-2312)).
 
 The system is based on |gensim| |sklearn|
 
