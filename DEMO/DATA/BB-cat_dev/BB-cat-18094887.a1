@@ -1,0 +1,68 @@
+T1	Title 0 69	Rickettsia infection in five areas of the state of São Paulo, Brazil.
+T2	Paragraph 70 1458	This study investigated rickettsial infection in animals, humans, ticks, and fleas collected in five areas of the state of São Paulo. Eight flea species (Adoratopsylla antiquorum antiquorum, Ctenocephalides felis felis, Polygenis atopus, Polygenis rimatus, Polygenis roberti roberti, Polygenis tripus, Rhopalopsyllus lugubris, and Rhopalopsyllus lutzi lutzi), and five tick species (Amblyomma aureolatum, Amblyomma cajennense, Amblyomma dubitatum, Ixodes loricatus, and Rhipicephalus sanguineus) were collected from dogs, cats, and opossums. Rickettsia felis was the only rickettsia found infecting fleas, whereas Rickettsia bellii was the only agent infecting ticks, but no animal or human blood was shown to contain rickettsial DNA. Testing animal and human sera by indirect immunofluorescence assay against four rickettsia antigens (R. rickettsii, R. parkeri, R. felis, and R. bellii), some opossum, dog, horse, and human sera reacted to R. rickettsii with titers at least four-fold higher than to the other three rickettsial antigens. These sera were considered to have a predominant antibody response to R. rickettsii. Using the same criteria, opossum, dog, and horse sera showed predominant antibody response to R. parkeri or a very closely related genotype. Our serological results suggest that both R. rickettsii and R. parkeri infected animals and/or humans in the studied areas.
+T3	Bacteria 0 10	Rickettsia
+T4	Bacteria 94 105	rickettsial
+T5	Habitat 119 126	animals
+T6	Habitat 128 134	humans
+T7	Habitat 136 141	ticks
+T8	Habitat 147 152	fleas
+T9	Habitat 210 214	flea
+T10	Habitat 224 259	Adoratopsylla antiquorum antiquorum
+T11	Habitat 261 288	Ctenocephalides felis felis
+T12	Habitat 290 306	Polygenis atopus
+T13	Habitat 308 325	Polygenis rimatus
+T14	Habitat 327 352	Polygenis roberti roberti
+T15	Habitat 354 370	Polygenis tripus
+T16	Habitat 372 395	Rhopalopsyllus lugubris
+T17	Habitat 401 427	Rhopalopsyllus lutzi lutzi
+T18	Habitat 439 443	tick
+T19	Habitat 453 473	Amblyomma aureolatum
+T20	Habitat 475 495	Amblyomma cajennense
+T21	Habitat 497 516	Amblyomma dubitatum
+T22	Habitat 518 534	Ixodes loricatus
+T23	Habitat 540 564	Rhipicephalus sanguineus
+T24	Habitat 586 590	dogs
+T25	Habitat 592 596	cats
+T26	Habitat 602 610	opossums
+T27	Bacteria 612 628	Rickettsia felis
+T28	Bacteria 642 652	rickettsia
+T29	Habitat 669 674	fleas
+T30	Bacteria 684 701	Rickettsia bellii
+T31	Habitat 731 736	ticks
+T32	Habitat 745 751	animal
+T33	Habitat 745 751;761 766	animal blood
+T34	Habitat 755 766	human blood
+T35	Habitat 755 760	human
+T36	Bacteria 788 799	rickettsial
+T37	Habitat 813 819	animal
+T38	Habitat 813 819;830 834	animal sera
+T39	Habitat 824 829	human
+T40	Habitat 824 834	human sera
+T41	Bacteria 885 895	rickettsia
+T42	Bacteria 906 919	R. rickettsii
+T43	Bacteria 921 931	R. parkeri
+T44	Bacteria 933 941	R. felis
+T45	Bacteria 947 956	R. bellii
+T46	Habitat 964 971;995 999	opossum sera
+T47	Habitat 964 971	opossum
+T48	Habitat 973 976	dog
+T49	Habitat 973 976;995 999	dog sera
+T50	Habitat 978 983	horse
+T51	Habitat 978 983;995 999	horse sera
+T52	Habitat 989 994	human
+T53	Habitat 989 999	human sera
+T54	Bacteria 1011 1024	R. rickettsii
+T55	Bacteria 1087 1098	rickettsial
+T56	Habitat 1115 1119	sera
+T57	Bacteria 1179 1192	R. rickettsii
+T58	Habitat 1219 1226;1243 1247	opossum sera
+T59	Habitat 1219 1226	opossum
+T60	Habitat 1228 1231;1243 1247	dog sera
+T61	Habitat 1228 1231	dog
+T62	Habitat 1237 1247	horse sera
+T63	Habitat 1237 1242	horse
+T64	Bacteria 1288 1298	R. parkeri
+T65	Bacteria 1377 1390	R. rickettsii
+T66	Bacteria 1395 1405	R. parkeri
+T67	Habitat 1415 1422	animals
+T68	Habitat 1430 1436	humans

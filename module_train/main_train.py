@@ -84,7 +84,7 @@ def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
 
 
 
-def train(vst_onlyTokens, dl_terms, dl_associations, ontology, factor):
+def train(vst_onlyTokens, dl_terms, dl_associations, ontology, factor=1.0):
     """
     Description: Main module which calculates the regression parameters (a matrix)
     :param vst_onlyTokens: An initial VST containing only tokens and associated vectors.

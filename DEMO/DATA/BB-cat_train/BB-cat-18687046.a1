@@ -1,0 +1,27 @@
+T1	Title 0 125	Impact of intracranial pressure monitor prophylaxis on central nervous system infections and bacterial multi-drug resistance.
+T2	Paragraph 126 586	Routine intracranial pressure monitor (ICP) prophylaxis is not practiced at our institution. Nevertheless, some patients receive de facto prophylaxis as a result of the use of antibiotics for injuries such as open or facial fractures. We tested the hypothesis that prophylactic antibiotics do not reduce the incidence of central nervous system (CNS) infections but instead are associated with the acquisition of multi-drug resistant (MDR) bacterial infections.
+T3	Paragraph 587 1634	Patients admitted to the trauma intensive care unit (TICU) from January, 2001 through December, 2004 with blunt, non-operative traumatic brain injury who were managed solely with an ICP monitor were identified from our trauma registry and divided into two groups: (1) Those receiving no antibiotics prior to or during ICP monitoring (NONE; n = 71); and (2) those already receiving antibiotics at the time of ICP monitor insertion (PRO; n = 84). Groups were stratified on the basis of age, Injury Severity Score (ISS), Glasgow Coma Scale (GCS) Score, base excess (BE), ICP days, transfusions in 24 h, ICU days, ventilator days, head Abbreviated Injury Score (AIS), and chest AIS. The study groups did not differ with respect to age, ISS, GCS, BE, ICP days, 24-h transfusions, ICU days, ventilator days, head AIS, or length of stay. In all, 183 patients were identified, of whom 28 died within seven days and were excluded from the analysis. All patients were followed until discharge for both CNS infections and subsequent infectious complications.
+T4	Paragraph 1635 2119	Only two patients, both in the PRO group, developed CNS infection. Both infectious complications (0.7 vs 1.4 per patient; p < 0.05) and infections secondary to MDR pathogens (0.03 vs. 0.33 per patient; p < 0.01) were significantly more common in the PRO group. Twenty-nine percent of the ventilator-associated pneumonias and 33% of the blood stream infections in the PRO group were MDR, whereas only two blood stream infections in the NONE group (4% of the total infections) were MDR.
+T5	Paragraph 2120 2346	The routine use of prophylactic antibiotics for ICP monitor insertion is not warranted. This practice does not reduce the CNS infection rate and is associated with more MDR pathogens in any subsequent infectious complications.
+T6	Habitat 55 77	central nervous system
+T7	Habitat 238 246	patients
+T8	Habitat 343 349	facial
+T9	Habitat 447 469	central nervous system
+T10	Habitat 471 474	CNS
+T11	Habitat 587 595	Patients
+T12	Habitat 612 638	trauma intensive care unit
+T13	Habitat 640 644	TICU
+T14	Habitat 724 736	brain injury
+T15	Habitat 724 729	brain
+T16	Habitat 1187 1190	ICU
+T17	Habitat 1362 1365	ICU
+T18	Habitat 1430 1438	patients
+T19	Habitat 1531 1539	patients
+T20	Habitat 1579 1582	CNS
+T21	Habitat 1644 1652	patients
+T22	Habitat 1687 1690	CNS
+T23	Habitat 1748 1755	patient
+T24	Habitat 1828 1835	patient
+T25	Habitat 1971 1983	blood stream
+T26	Habitat 2039 2051	blood stream
+T27	Habitat 2242 2245	CNS

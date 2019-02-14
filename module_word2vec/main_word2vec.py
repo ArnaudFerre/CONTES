@@ -133,9 +133,3 @@ class Word2Vec(OptionParser):
 
 if __name__ == '__main__':
     Word2Vec().run()
-
-
-# w2v = Word2Vec()
-# w2v.corpus = [['the', 'mouse']]
-# w2v.buildVector(...)
-# w2v.vst_model

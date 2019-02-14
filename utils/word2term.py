@@ -78,11 +78,13 @@ def calculateTermVec(vst_onlyTokens, l_tokens, l_unknownToken):
     numberOfKnownTokens = 0
 
     for i, token in enumerate(l_tokens):
+
         if token in vst_onlyTokens.keys():
             vec += vst_onlyTokens[token]
             numberOfKnownTokens += 1
         else:
-            l_unknownToken.append(token)
+            if token not in l_unknownToken:
+                l_unknownToken.append(token)
 
     if numberOfKnownTokens > 0:
         vec = vec / numberOfKnownTokens
