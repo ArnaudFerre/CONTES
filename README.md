@@ -8,9 +8,7 @@ The system is based on |gensim| |sklearn|
 
 ```
 $ git clone https://github.com/ArnaudFerre/CONTES.git
-```
 
-```
 $ cd CONTES
 ```
 
@@ -30,13 +28,9 @@ $ source activate contesenv
 
 ```
 $ python module_word2vec/main_word2vec.py --help
-```
 
-```
 $ python module_train/main_train.py --help
-```
 
-```
 $ python module_predictor/main_predictor.py --help
 ```
 
