@@ -84,24 +84,21 @@ def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
 
 
 
-def train(vst_onlyTokens, dl_terms, dl_associations, ontology, factor=1.0):
+def train(vst_onlyTokens, dl_terms, dl_associations, vso):
     """
     Description: Main module which calculates the regression parameters (a matrix)
     :param vst_onlyTokens: An initial VST containing only tokens and associated vectors.
     :param dl_terms: A dictionnary with id of terms for key and raw form of terms in value.
     :param dl_associations: The training set associating the id of terms and the if of concepts (NB: the respect of these
         IDs is the responsability of the user).
-    :param onto: A Pronto object representing an ontology.
+    :param vso: A VSO, that is a dictionary with id of concept (<XXX_xxxxxxxx: Label>) as keys and a numpy vector in value..
     :return: the reg variable which contains two variables (coefficients matrix and error vectors). For more details, see:
         http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html
         The reg variable enables to do prediction for the rest.
-        Generate also a VSO represented by concepts and their vectors.
         To not lose this information, the unknown tokens contained in multiwords terms are also returned.
     """
     reg = linear_model.LinearRegression()
     # See parameters of the linear regression (fit_intercept, normalize, n_jobs)
-
-    vso = onto.ontoToVec(ontology, factor)
 
     vstTerm, l_unknownToken = word2term.wordVST2TermVST(vst_onlyTokens, dl_terms)
 
@@ -109,7 +106,7 @@ def train(vst_onlyTokens, dl_terms, dl_associations, ontology, factor=1.0):
 
     reg.fit(X_train, Y_train)
 
-    return reg, vso, l_unknownToken
+    return reg, l_unknownToken
 
 
 def loadJSON(filename):
@@ -129,10 +126,8 @@ class Train(OptionParser):
         self.add_option('--word-vectors-bin', action='store', type='string', dest='word_vectors_bin', help='path to word vectors binary file as produced by word2vec')
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--attributions', action='append', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
-        self.add_option('--factor', action='append', type='float', dest='factors', default=[], help='parent concept weight factor (default: 1.0)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file')
-        self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
-        self.add_option('--ontology-vector', action='store', type='string', dest='ontology_vector', help='path to the ontology vector file')
+        self.add_option('--ontology-vector', action='store', type='string', dest='vsoPath', help='path to the ontology vector file')
         
     def run(self):
         options, args = self.parse_args()
@@ -142,8 +137,8 @@ class Train(OptionParser):
             raise Exception('missing either --word-vectors or --word-vectors-bin')
         if options.word_vectors is not None and options.word_vectors_bin is not None:
             raise Exception('incompatible --word-vectors or --word-vectors-bin')        
-        if options.ontology is None:
-            raise Exception('missing --ontology')
+        if options.vsoPath is None:
+            raise Exception('missing --ontology-vector')
         if not options.terms:
             raise Exception('missing --terms')
         if not options.attributions:
@@ -154,13 +149,6 @@ class Train(OptionParser):
             raise Exception('there must be the same number of --terms and --attributions')
         if len(options.terms) != len(options.regression_matrix):
             raise Exception('there must be the same number of --terms and --regression-matrix')
-        if len(options.factors) > len(options.terms):
-            raise Exception('there must be at least as many --terms as --factor')
-        if len(options.factors) < len(options.terms):
-            n = len(options.terms) - len(options.factors)
-            stderr.write('defaulting %d factors to 1.0\n' % n)
-            stderr.flush()
-            options.factors.extend([1.0]*n)
         if options.word_vectors is not None:
             stderr.write('loading word embeddings: %s\n' % options.word_vectors)
             stderr.flush()
@@ -170,27 +158,19 @@ class Train(OptionParser):
             stderr.flush()
             model = gensim.models.Word2Vec.load(options.word_vectors_bin)
             word_vectors = dict((k, list(numpy.float_(npf32) for npf32 in model.wv[k])) for k in model.wv.vocab.keys())
-        stderr.write('loading ontology: %s\n' % options.ontology)
+
+        stderr.write('loading ontology-vector: %s\n' % options.vsoPath)
         stderr.flush()
-        ontology = onto.loadOnto(options.ontology)
-        first = True
-        for terms_i, attributions_i, regression_matrix_i, factor_i in zip(options.terms, options.attributions, options.regression_matrix, options.factors):
+        vso = json.load(options.vsoPath)
+
+        for terms_i, attributions_i, regression_matrix_i in zip(options.terms, options.attributions, options.regression_matrix):
             stderr.write('loading terms: %s\n' % terms_i)
             stderr.flush()
             terms = loadJSON(terms_i)
             stderr.write('loading attributions: %s\n' % attributions_i)
             stderr.flush()
             attributions = loadJSON(attributions_i)
-            regression_matrix, ontology_vector, _ = train(word_vectors, terms, attributions, ontology, factor_i)
-            if first and options.ontology_vector is not None:
-                first = False
-                # translate numpy arrays into lists
-                serializable = dict((k, list(v)) for k, v in ontology_vector.iteritems())
-                stderr.write('writing ontology vector: %s\n' % options.ontology_vector)
-                stderr.flush()
-                f = open(options.ontology_vector, 'w')
-                json.dump(serializable, f)
-                f.close()
+            regression_matrix, _ = train(word_vectors, terms, attributions, vso)
             if options.regression_matrix is not None:
                 stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
                 stderr.flush()
@@ -200,6 +180,5 @@ class Train(OptionParser):
                 joblib.dump(regression_matrix, regression_matrix_i)
 
 
-            
 if __name__ == '__main__':
     Train().run()

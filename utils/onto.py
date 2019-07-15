@@ -80,3 +80,6 @@ def ontoToVec(onto, factor=1.0):
 
     return vso
 
+
+
+

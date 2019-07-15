@@ -17,7 +17,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json, numpy, os
+import json, numpy, os, sys
+sys.path.insert(0, os.path.abspath(".."))
+
 
 #################################################
 # STEP 1: Training & Ontological embedding
@@ -45,16 +47,33 @@ dl_trainingTerms = json.load(extractedMentionsFile)
 attributionsFile = open(attributionsFilePath, 'r')
 attributions = json.load(attributionsFile)
 
-# Load an ontology for your task.
-# (If you had many with your own task, you can use Protégé software to merge them in one)
-from utils import onto
-ontobiotiope = onto.loadOnto("DATA/OntoBiotope_BioNLP-ST-2016.obo")
+######
+
+# Calculate vector representations of concepts:
+from module_concept2vecRep import main_concept2vecRep
+ontoPath = "DATA/OntoBiotope_BioNLP-ST-2016.obo"
+VSO = main_concept2vecRep.concept2vecRep(ontoPath, mode="Ancestry", factor=1.0)
+
+# Write VSO in a JSON file:
+print("Writing of VSO...")
+VSO_path = "DATA/VSO_OntoBiotope_BioNLP-ST-2016.json"
+serializable = dict((k, list(v)) for k, v in VSO.iteritems())
+f = open(VSO_path, 'w')
+json.dump(serializable, f)
+f.close()
+print("VSO has been written.\n")
+
+######
 
 # Building of concept embeddings and training:
 from module_train import main_train
-regMat, VSO, l_unknownTokens = main_train.train(word_vectors, dl_trainingTerms, attributions, ontobiotiope, factor=1.0)
+print("Loading VSO...")
+VSO_path = "DATA/VSO_OntoBiotope_BioNLP-ST-2016.json"
+VSO_file = open(VSO_path, "r")
+VSO = json.load(VSO_file)
+print("VSO loaded.\n")
+regMat, l_unknownTokens = main_train.train(word_vectors, dl_trainingTerms, attributions, VSO)
 print("Unknown tokens (possibly tokens from labels of the ontology): "+str(l_unknownTokens))
-
 
 #################################################
 # STEP 3: Prediction
