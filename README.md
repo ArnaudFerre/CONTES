@@ -43,27 +43,27 @@ $ python module_word2vec/main_word2vec.py \
 --json word-vectors.json \
 --min-count 0 \
 --vector-size 100 \
---window-size 2 < test-data/corpus.txt
+--window-size 2 < test/DATA/W2V_ExternalCorpus/corpus.txt
 ```
 
 * Train a Contes model
 
 ```
 $ python module_train/main_train.py  \
---word-vectors test-data/embeddings/microbio_filtered_100/word-vectors.json.gz \
---terms test-data/input-corpus/terms_0.json \
---attributions test-data/input-corpus/attributions_0.json \
---regression-matrix test-data/models/bb \
---ontology test-data/OntoBiotope_BioNLP-ST-2016.obo
+--word-vectors test/DATA/wordEmbeddings/VST_count0_size100_iter50.model \
+--terms test/DATA/trainingData/terms_train.json \
+--attributions test/DATA/trainingData/attributions_train.json \
+--regression-matrix test/DATA/learnedHyperparameters/model.sav \
+--ontology test/DATA/OntoBiotope_BioNLP-ST-2016.obo
 ```
 
 * Predict from a Contes Model
 
 ```
 $ python module_predictor/main_predictor.py \
---word-vectors test-data/embeddings/microbio_filtered_100/word-vectors.json.gz \
---terms test-data/input-corpus/terms_0.json \
---regression-matrix test-data/models/bb \
---ontology test-data/OntoBiotope_BioNLP-ST-2016.obo \
---output test-data/predictions/output.json
+--word-vectors test/DATA/wordEmbeddings/VST_count0_size100_iter50.model \
+--terms test/DATA/trainingData/terms_train.json \
+--regression-matrix test/DATA/learnedHyperparameters/model.sav \
+--ontology test/DATA/OntoBiotope_BioNLP-ST-2016.obo
+--output test/DATA/predictedData/output.json
 ``` 

@@ -18,6 +18,7 @@ limitations under the License.
 """
 
 import json, numpy, os, sys
+from sklearn.externals import joblib
 sys.path.insert(0, os.path.abspath(".."))
 
 
@@ -79,7 +80,11 @@ VSO_path = "DATA/VSO_OntoBiotope_BioNLP-ST-2016.json"
 VSO_file = open(VSO_path, "r")
 VSO = json.load(VSO_file)
 print("VSO loaded.\n")
+
 regMat = main_train.train(VST, dl_trainingTerms, attributions, VSO)
+
+regmatPath = "DATA/learnedHyperparameters/model.sav"
+joblib.dump(regMat, regmatPath)
 
 #################################################
 # STEP 3: Prediction
@@ -105,6 +110,7 @@ print l_unknownToken
 
 # Prediction with precedent training model (see STEP 2):
 from module_predictor import main_predictor
+regMat = joblib.load(regmatPath)
 lt_predictions = main_predictor.predictor(VST, dl_terms, VSO, regMat, 'cosine')
 
 #################################################
