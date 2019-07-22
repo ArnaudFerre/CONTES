@@ -65,6 +65,13 @@ print("VSO has been written.\n")
 
 ######
 
+# Calculate vector representations for expressions (possibly multiwords):
+from module_wordVec2ExpVec import main_wordVec2expVec
+VST, l_unknownToken = main_wordVec2expVec.wordVST2TermVST(word_vectors, dl_trainingTerms)
+print l_unknownToken
+
+######
+
 # Building of concept embeddings and training:
 from module_train import main_train
 print("Loading VSO...")
@@ -72,8 +79,7 @@ VSO_path = "DATA/VSO_OntoBiotope_BioNLP-ST-2016.json"
 VSO_file = open(VSO_path, "r")
 VSO = json.load(VSO_file)
 print("VSO loaded.\n")
-regMat, l_unknownTokens = main_train.train(word_vectors, dl_trainingTerms, attributions, VSO)
-print("Unknown tokens (possibly tokens from labels of the ontology): "+str(l_unknownTokens))
+regMat = main_train.train(VST, dl_trainingTerms, attributions, VSO)
 
 #################################################
 # STEP 3: Prediction
@@ -88,10 +94,18 @@ ddd_a1 = BioNLP_Format.parseA1(a1Path)
 dl_terms, ddd_a1, errorsNumber = BioNLP_Format.getTermsFromA1(ddd_a1)
 print("Number of unreadable tokens: "+str(errorsNumber))
 
+######
+
+# Calculate vector representations for expressions (possibly multiwords):
+from module_wordVec2ExpVec import main_wordVec2expVec
+VST, l_unknownToken = main_wordVec2expVec.wordVST2TermVST(word_vectors, dl_terms)
+print l_unknownToken
+
+######
+
 # Prediction with precedent training model (see STEP 2):
 from module_predictor import main_predictor
-lt_predictions, l_unknownTokens = main_predictor.predictor(word_vectors, dl_terms, VSO, regMat, 'cosine')
-print("Unknown tokens in new mentions compare to W2V tokens: "+str(l_unknownTokens))
+lt_predictions = main_predictor.predictor(VST, dl_terms, VSO, regMat, 'cosine')
 
 #################################################
 # STEP 4: Formatting for evaluation
@@ -99,7 +113,7 @@ print("Unknown tokens in new mentions compare to W2V tokens: "+str(l_unknownToke
 
 # Create and write predictions in A2 files, put into the directory <<a2Path>>:
 from utils import BioNLP_Format
-a2Path = "../DEMO/DATA/predictedData"
+a2Path = "../test/DATA/predictedData"
 BioNLP_Format.writeA2(a2Path, lt_predictions, ddd_a1)
 
 ###

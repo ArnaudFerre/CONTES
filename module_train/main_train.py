@@ -45,14 +45,14 @@ from os import makedirs
 # Functions
 #######################################################################################################
 
-def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
+def getMatrix(vstTerm, dl_terms, dl_associations, vso, symbol="___"):
     """
     Description: Create the 2 training matrix in respect to their association. Each row of the matrix correspond to a
         vector (associated with a term or a concept). For the same number of a row, there is the vector of a term and
         for the other a vector of the associated concept ; (n_samples, n_features) and (n_sample, n_targets).
     :param dl_terms: A dictionnary with id of terms for key and raw form of terms in value.
     :param vstTerm: VST with only the terms and the vectors contained in the dl_terms.
-    :param dl_associations: The training set associating the id of terms and the if of concepts (NB: the respect of these
+    :param dl_associations: The training set associating the id of terms and the id of concepts (NB: the respect of these
         IDs is the responsability of the user).
     :param vso: A VSO, that is a dictionary with id of concept (<XXX_xxxxxxxx: Label>) as keys and a numpy vector in value.
     :param symbol: Symbol delimiting the different token in a multi-words term.
@@ -84,11 +84,10 @@ def getMatrix(dl_terms, vstTerm, dl_associations, vso, symbol="___"):
 
 
 
-def train(vst_onlyTokens, dl_terms, dl_associations, vso):
+def train(vstTerm, dl_terms, dl_associations, vso):
     """
     Description: Main module which calculates the regression parameters (a matrix)
-    :param vst_onlyTokens: An initial VST containing only tokens and associated vectors.
-    :param dl_terms: A dictionnary with id of terms for key and raw form of terms in value.
+    :param vstTerm: VST containing only vectors of terms.
     :param dl_associations: The training set associating the id of terms and the if of concepts (NB: the respect of these
         IDs is the responsability of the user).
     :param vso: A VSO, that is a dictionary with id of concept (<XXX_xxxxxxxx: Label>) as keys and a numpy vector in value..
@@ -100,13 +99,11 @@ def train(vst_onlyTokens, dl_terms, dl_associations, vso):
     reg = linear_model.LinearRegression()
     # See parameters of the linear regression (fit_intercept, normalize, n_jobs)
 
-    vstTerm, l_unknownToken = word2term.wordVST2TermVST(vst_onlyTokens, dl_terms)
-
-    X_train, Y_train = getMatrix(dl_terms, vstTerm, dl_associations, vso)
+    X_train, Y_train = getMatrix(vstTerm, dl_terms, dl_associations, vso)
 
     reg.fit(X_train, Y_train)
 
-    return reg, l_unknownToken
+    return reg
 
 
 def loadJSON(filename):
@@ -128,6 +125,7 @@ class Train(OptionParser):
         self.add_option('--attributions', action='append', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file')
         self.add_option('--ontology-vector', action='store', type='string', dest='vsoPath', help='path to the ontology vector file')
+        self.add_option('--vst', action='append', type='string', dest='vstPath', help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
         
     def run(self):
         options, args = self.parse_args()
@@ -149,15 +147,11 @@ class Train(OptionParser):
             raise Exception('there must be the same number of --terms and --attributions')
         if len(options.terms) != len(options.regression_matrix):
             raise Exception('there must be the same number of --terms and --regression-matrix')
-        if options.word_vectors is not None:
-            stderr.write('loading word embeddings: %s\n' % options.word_vectors)
+        if options.vsoPath is None:
+            raise Exception('missing --vst')
+            stderr.write('loading expressions embeddings: %s\n' % options.vsoPath)
             stderr.flush()
-            word_vectors = loadJSON(options.word_vectors)
-        elif options.word_vectors_bin is not None:
-            stderr.write('loading word embeddings: %s\n' % options.word_vectors_bin)
-            stderr.flush()
-            model = gensim.models.Word2Vec.load(options.word_vectors_bin)
-            word_vectors = dict((k, list(numpy.float_(npf32) for npf32 in model.wv[k])) for k in model.wv.vocab.keys())
+            vstTerm = loadJSON(options.vsoPath)
 
         stderr.write('loading ontology-vector: %s\n' % options.vsoPath)
         stderr.flush()
@@ -170,7 +164,7 @@ class Train(OptionParser):
             stderr.write('loading attributions: %s\n' % attributions_i)
             stderr.flush()
             attributions = loadJSON(attributions_i)
-            regression_matrix, _ = train(word_vectors, terms, attributions, vso)
+            regression_matrix, _ = train(vstTerm, terms, attributions, vso)
             if options.regression_matrix is not None:
                 stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
                 stderr.flush()

@@ -80,7 +80,7 @@ class VSONN(NearestNeighbors):
 
 
 
-def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, metric, symbol='___'):
+def predictor(vstTerm, dl_terms, vso, transformationParam, metric, symbol='___'):
     """
     Description: From a calculated linear projection from the training module, applied it to predict a concept for each
         terms in parameters (dl_terms).
@@ -89,12 +89,9 @@ def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, metric, symbol
     :param vso: A VSO (dict() -> {"id" : [vector], ...}
     :param transformationParam: LinearRegression object from Sklearn. Use the one calculated by the training module.
     :param symbol: Symbol delimiting the different token in a multi-words term.
-    :return: A list of tuples containing : ("term form", "term id", "predicted concept id") and a list of unknown tokens
-        containing in the terms from dl_terms.
+    :return: A list of tuples containing : ("term form", "term id", "predicted concept id").
     """
     lt_predictions = list()
-
-    vstTerm, l_unknownToken = word2term.wordVST2TermVST(vst_onlyTokens, dl_terms)
 
     result = dict()
 
@@ -112,7 +109,7 @@ def predictor(vst_onlyTokens, dl_terms, vso, transformationParam, metric, symbol
         prediction = (termForm, id_term, cat, sim)
         lt_predictions.append(prediction)
 
-    return lt_predictions, l_unknownToken
+    return lt_predictions
 
 
 def loadJSON(filename):
@@ -135,8 +132,8 @@ class Predictor(OptionParser):
         self.add_option('--factor', action='append', type='float', dest='factors', default=[], help='parent concept weight factor (default: 1.0)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
         self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
-
         self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: %default)')
+        self.add_option('--vst', action='append', type='string', dest='vstPath', help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
 
     def run(self):
         options, args = self.parse_args()
@@ -165,6 +162,8 @@ class Predictor(OptionParser):
             stderr.write('defaulting %d factors to 1.0\n' % n)
             stderr.flush()
             options.factors.extend([1.0]*n)
+        if options.vsoPath is None:
+            raise Exception('missing --vst')
         if options.word_vectors is not None:
             stderr.write('loading word embeddings: %s\n' % options.word_vectors)
             stderr.flush()
