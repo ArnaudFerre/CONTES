@@ -33,13 +33,14 @@ from sklearn import linear_model
 from sklearn.externals import joblib
 import numpy
 import gensim
-from sys import stderr, stdin
+import sys, os
 from optparse import OptionParser
-from utils import word2term, onto
 import json
 import gzip
-from os.path import dirname, exists
-from os import makedirs
+
+
+sys.path.insert(0, os.path.abspath(".."))
+from utils import word2term, onto
 
 #######################################################################################################
 # Functions
@@ -119,22 +120,17 @@ def loadJSON(filename):
 class Train(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
-        self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors JSON file as produced by word2vec')
-        self.add_option('--word-vectors-bin', action='store', type='string', dest='word_vectors_bin', help='path to word vectors binary file as produced by word2vec')
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--attributions', action='append', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
-        self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file')
         self.add_option('--ontology-vector', action='store', type='string', dest='vsoPath', help='path to the ontology vector file')
         self.add_option('--vst', action='append', type='string', dest='vstPath', help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
+        self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file')
+
         
     def run(self):
         options, args = self.parse_args()
         if len(args) > 0:
             raise Exception('stray arguments: ' + ' '.join(args))
-        if options.word_vectors is None and options.word_vectors_bin is None:
-            raise Exception('missing either --word-vectors or --word-vectors-bin')
-        if options.word_vectors is not None and options.word_vectors_bin is not None:
-            raise Exception('incompatible --word-vectors or --word-vectors-bin')        
         if options.vsoPath is None:
             raise Exception('missing --ontology-vector')
         if not options.terms:
@@ -175,4 +171,50 @@ class Train(OptionParser):
 
 
 if __name__ == '__main__':
-    Train().run()
+
+    # Path to test data:
+    mentionsFilePath = "../test/DATA/trainingData/terms_trainObo.json"
+    attributionsFilePath = "../test/DATA/trainingData/attributions_trainObo.json"
+    modelPath = "../test/DATA/wordEmbeddings/VST_count0_size100_iter50.model"  # the provided models are really small models, just to test execution
+    SSO_path = "../test/DATA/VSO_OntoBiotope_BioNLP-ST-2016.json"
+    regmatPath = "../test/DATA/learnedHyperparameters/model.sav"
+
+    # load training data:
+    print("\nLoading training data...")
+    extractedMentionsFile = open(mentionsFilePath, 'r')
+    dl_trainingTerms = json.load(extractedMentionsFile)
+    attributionsFile = open(attributionsFilePath, 'r')
+    attributions = json.load(attributionsFile)
+    print("Training data loaded.\n")
+
+    # Load an existing W2V model (Gensim format):
+    print("Loading word embeddings...")
+    from gensim.models import Word2Vec
+    filename, file_extension = os.path.splitext(modelPath)
+    model = Word2Vec.load(modelPath)
+    word_vectors = dict((k, list(numpy.float_(npf32) for npf32 in model.wv[k])) for k in model.wv.vocab.keys())
+    print("Word embeddings loaded.\n")
+
+    # Calculate vector representations for expressions (possibly multiwords):
+    print("Calculating representions for expressions (possibly multiwords)...")
+    from module_wordVec2ExpVec import main_wordVec2expVec
+    VST, l_unknownToken = main_wordVec2expVec.wordVST2TermVST(word_vectors, dl_trainingTerms)
+    print("Number of unknown tokens in expressions:" + str(len(l_unknownToken)))
+    print("Calculating representions for expressions done.\n")
+
+    # Building of concept embeddings and training:
+    print("Loading Semantic Space of the Ontology (SSO)...")
+    SSO_file = open(SSO_path, "r")
+    SSO = json.load(SSO_file)
+    print("SSO loaded.\n")
+
+    print("Training of the CONTES method...")
+    regMat = train(VST, dl_trainingTerms, attributions, SSO)
+    print("Training done.\n")
+
+    print("Saving learned hyperparameters...")
+    joblib.dump(regMat, regmatPath)
+    print("Saving done.")
+
+
+    #Train().run()
