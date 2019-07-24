@@ -145,28 +145,29 @@ class Train(OptionParser):
             raise Exception('there must be the same number of --terms and --regression-matrix')
         if options.vsoPath is None:
             raise Exception('missing --vst')
-            stderr.write('loading expressions embeddings: %s\n' % options.vsoPath)
-            stderr.flush()
-            vstTerm = loadJSON(options.vsoPath)
 
-        stderr.write('loading ontology-vector: %s\n' % options.vsoPath)
-        stderr.flush()
+        sys.stderr.write('loading expressions embeddings: %s\n' % options.vsoPath)
+        sys.stderr.flush()
+        vstTerm = loadJSON(options.vsoPath)
+
+        sys.stderr.write('loading ontology-vector: %s\n' % options.vsoPath)
+        sys.stderr.flush()
         vso = json.load(options.vsoPath)
 
         for terms_i, attributions_i, regression_matrix_i in zip(options.terms, options.attributions, options.regression_matrix):
-            stderr.write('loading terms: %s\n' % terms_i)
-            stderr.flush()
+            sys.stderr.write('loading terms: %s\n' % terms_i)
+            sys.stderr.flush()
             terms = loadJSON(terms_i)
-            stderr.write('loading attributions: %s\n' % attributions_i)
-            stderr.flush()
+            sys.stderr.write('loading attributions: %s\n' % attributions_i)
+            sys.stderr.flush()
             attributions = loadJSON(attributions_i)
             regression_matrix, _ = train(vstTerm, terms, attributions, vso)
             if options.regression_matrix is not None:
-                stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
-                stderr.flush()
-                d = dirname(regression_matrix_i)
-                if not exists(d) and d != '':
-                    makedirs(d)
+                sys.stderr.write('writing regression_matrix: %s\n' % regression_matrix_i)
+                sys.stderr.flush()
+                d = os.path.dirname(regression_matrix_i)
+                if not os.path.exists(d) and d != '':
+                    os.makedirs(d)
                 joblib.dump(regression_matrix, regression_matrix_i)
 
 

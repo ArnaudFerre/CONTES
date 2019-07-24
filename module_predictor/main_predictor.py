@@ -131,18 +131,15 @@ class Predictor(OptionParser):
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--factor', action='append', type='float', dest='factors', default=[], help='parent concept weight factor (default: 1.0)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
-        self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
-        self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: %default)')
         self.add_option('--vst', action='append', type='string', dest='vstPath', help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
+        self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: %default)')
+        self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
+
 
     def run(self):
         options, args = self.parse_args()
         if len(args) > 0:
             raise Exception('stray arguments: ' + ' '.join(args))
-        if options.word_vectors is None and options.word_vectors_bin is None:
-            raise Exception('missing either --word-vectors or --word-vectors-bin')
-        if options.word_vectors is not None and options.word_vectors_bin is not None:
-            raise Exception('incompatible --word-vectors or --word-vectors-bin')        
         if options.ontology is None:
             raise Exception('missing --ontology')
         if not(options.terms):
@@ -164,15 +161,7 @@ class Predictor(OptionParser):
             options.factors.extend([1.0]*n)
         if options.vsoPath is None:
             raise Exception('missing --vst')
-        if options.word_vectors is not None:
-            stderr.write('loading word embeddings: %s\n' % options.word_vectors)
-            stderr.flush()
-            word_vectors = loadJSON(options.word_vectors)
-        elif options.word_vectors_bin is not None:
-            stderr.write('loading word embeddings: %s\n' % options.word_vectors_bin)
-            stderr.flush()
-            model = gensim.models.Word2Vec.load(options.word_vectors_bin)
-            word_vectors = dict((k, list(numpy.float_(npf32) for npf32 in model.wv[k])) for k in model.wv.vocab.keys())
+
         stderr.write('loading ontology: %s\n' % options.ontology)
         stderr.flush()
         ontology = onto.loadOnto(options.ontology)
@@ -184,9 +173,14 @@ class Predictor(OptionParser):
             stderr.write('loading regression matrix: %s\n' % regression_matrix_i)
             stderr.flush()
             regression_matrix = joblib.load(regression_matrix_i)
+            stderr.write('loading expressions embeddings: %s\n' % options.vsoPath)
+            stderr.flush()
+            vstTerm = loadJSON(options.vsoPath)
+
             stderr.write('predicting\n')
             stderr.flush()
-            prediction, _ = predictor(word_vectors, terms, vso, regression_matrix, options.metric)
+            prediction, _ = predictor(vstTerm, terms, vso, regression_matrix, options.metric)
+
             stderr.write('writing predictions: %s\n' % output_i)
             stderr.flush()
             f = open(output_i, 'w')
