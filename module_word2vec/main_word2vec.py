@@ -31,9 +31,11 @@ import gzip
 class Word2Vec(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
-        self.add_option('--json', action='store', type='string', dest='json', help='JSON output filename')
-        self.add_option('--txt', action='store', type='string', dest='txt', help='TXT output filename')
-        self.add_option('--bin', action='store', type='string', dest='bin', help='binary output filename')
+
+        # Input
+        self.corpus = []
+
+        # Parameters:
         self.add_option('--min-count', action='store', type='int', dest='minCount', default=0, help='Ignore all words with total frequency lower than this')
         self.add_option('--vector-size', action='store', type='int', dest='vectSize', default=300, help='The dimensionality of the feature vectors, often effective between 100 and 300')
         self.add_option('--workers', action='store', type='int', dest='workerNum', default=2, help='Use this many worker threads to train the model (=faster training with multicore machines)')
@@ -41,7 +43,12 @@ class Word2Vec(OptionParser):
         self.add_option('--window-size', action='store', type='int', dest='windowSize', default=2, help='The maximum distance between the current and predicted word within a sentence')
         self.add_option('--iterations', action='store', type='int', dest='numIteration', default=5, help='Number of iterations (default: %default)')
         self.add_option('--seed', action='store', type='int', dest='seed', default=1, help='Random number generator seed')
-        self.corpus = []
+
+        # Output:
+        self.add_option('--json', action='store', type='string', dest='json', help='JSON output filename')
+        self.add_option('--txt', action='store', type='string', dest='txt', help='TXT output filename')
+        self.add_option('--bin', action='store', type='string', dest='bin', help='binary output filename')
+
 
     def buildVector(self, workerNum=8, minCount=0, vectSize=200, skipGram=True, windowSize=2, learningRate=0.05, numIteration=5, negativeSampling=5, subSampling=0.001, seed=1):
         """

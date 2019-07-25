@@ -67,14 +67,16 @@ def concept2vecRep(ontopath, mode="Ancestry", factor=None):
 class Concept2vecRep(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
-        self.add_option('--mode', action='append', type='string', dest='mode', default='Ancestry',
-                        help='mode of ontological representations process')
-        self.add_option('--factor', action='append', type='float', dest='factor', default=[],
-                        help='parent concept weight factor (default: 1.0)')
-        self.add_option('--ontology', action='store', type='string', dest='ontology',
-                        help='path to ontology file in OBO format')
-        self.add_option('--ontology-vector', action='store', type='string', dest='ontology_vector',
-                        help='path to the ontology vector file')
+
+        # Input:
+        self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
+
+        # Parameters
+        self.add_option('--mode', action='append', type='string', dest='mode', default='Ancestry', help='mode of ontological representations process')
+        self.add_option('--factor', action='append', type='float', dest='factor', default=[], help='parent concept weight factor (default: 1.0)')
+
+        # Output:
+        self.add_option('--ontology-vector', action='store', type='string', dest='ontology_vector', help='path to the ontology vector file')
 
     def run(self):
         options, args = self.parse_args()

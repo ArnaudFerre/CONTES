@@ -130,12 +130,17 @@ def loadJSON(filename):
 class Predictor(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
+
+        # Input
         self.add_option('--ontology-vector', action='store', type='string', dest='vsoPath', help='path to the ontology vector file')
-        self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
-        self.add_option('--factor', action='append', type='float', dest='factors', default=[], help='parent concept weight factor (default: 1.0)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
+        self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--vst', action='append', type='string', dest='vstPath', help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
+
+        # Parameters:
         self.add_option('--metric', action='store', type='string', dest='metric', default='cosine', help='distance metric to use (default: %default)')
+
+        # Output:
         self.add_option('--output', action='append', type='string', dest='output', help='file where to write predictions')
 
 
@@ -155,17 +160,10 @@ class Predictor(OptionParser):
             raise Exception('there must be the same number of --terms and --regression-matrix')
         if len(options.terms) != len(options.output):
             raise Exception('there must be the same number of --terms and --output')
-        if len(options.factors) > len(options.terms):
-            raise Exception('there must be at least as many --terms as --factor')
-        if len(options.factors) < len(options.terms):
-            n = len(options.terms) - len(options.factors)
-            sys.stderr.write('defaulting %d factors to 1.0\n' % n)
-            sys.stderr.flush()
-            options.factors.extend([1.0]*n)
         if options.vsoPath is None:
             raise Exception('missing --ontology-vector')
 
-        for terms_i, regression_matrix_i, output_i, factor_i in zip(options.terms, options.regression_matrix, options.output, options.factors):
+        for terms_i, regression_matrix_i, output_i in zip(options.terms, options.regression_matrix, options.output):
             sys.stderr.write('loading ontology-vector: %s\n' % options.vsoPath)
             sys.stderr.flush()
             vso = json.load(options.vsoPath)

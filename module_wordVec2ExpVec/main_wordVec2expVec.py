@@ -135,14 +135,14 @@ def wordVST2TermVST(vst_onlyTokens, dl_terms):
 class WordVec2expVec(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
-        self.add_option('--word-vectors', action='store', type='string', dest='word_vectors',
-                        help='path to word vectors JSON file as produced by word2vec')
-        self.add_option('--word-vectors-bin', action='store', type='string', dest='word_vectors_bin',
-                        help='path to word vectors binary file as produced by word2vec')
-        self.add_option('--terms', action='append', type='string', dest='terms',
-                        help='path to terms file in JSON format (map: id -> array of tokens)')
-        self.add_option('--vst', action='append', type='string', dest='vstPath',
-                        help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
+
+        # Input:
+        self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors JSON file as produced by word2vec')
+        self.add_option('--word-vectors-bin', action='store', type='string', dest='word_vectors_bin', help='path to word vectors binary file as produced by word2vec')
+        self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
+
+        # Output:
+        self.add_option('--vst', action='append', type='string', dest='vstPath', help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
 
 
     def run(self):

@@ -120,10 +120,14 @@ def loadJSON(filename):
 class Train(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
+
+        # Input:
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--attributions', action='append', type='string', dest='attributions', help='path to attributions file in JSON format (map: id -> array of concept ids)')
         self.add_option('--ontology-vector', action='store', type='string', dest='vsoPath', help='path to the ontology vector file')
         self.add_option('--vst', action='append', type='string', dest='vstPath', help='path to terms vectors file in JSON format (map: token1___token2 -> array of floats)')
+
+        # Output:
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file')
 
         
