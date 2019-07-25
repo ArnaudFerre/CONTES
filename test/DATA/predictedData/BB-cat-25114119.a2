@@ -1,4 +1,4 @@
-N1	OntoBiotope Annotation:T15 Referent:OBT:000000
+N1	OntoBiotope Annotation:T15 Referent:OBT:001768
 N2	OntoBiotope Annotation:T22 Referent:OBT:000065
 N3	NCBI_Taxonomy Annotation:T5 Referent:2
 N4	NCBI_Taxonomy Annotation:T7 Referent:2
@@ -20,7 +20,7 @@ N19	NCBI_Taxonomy Annotation:T4 Referent:2
 N20	OntoBiotope Annotation:T25 Referent:OBT:001804
 N21	OntoBiotope Annotation:T10 Referent:OBT:000000
 N22	OntoBiotope Annotation:T26 Referent:OBT:001804
-N23	OntoBiotope Annotation:T8 Referent:OBT:000065
-N24	OntoBiotope Annotation:T6 Referent:OBT:000065
-N25	OntoBiotope Annotation:T18 Referent:OBT:000065
+N23	OntoBiotope Annotation:T8 Referent:OBT:001865
+N24	OntoBiotope Annotation:T6 Referent:OBT:001865
+N25	OntoBiotope Annotation:T18 Referent:OBT:001865
 N26	OntoBiotope Annotation:T11 Referent:OBT:000000

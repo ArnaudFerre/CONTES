@@ -32,6 +32,7 @@ from sys import stderr, stdin
 import json
 import gzip
 import gensim
+import os
 
 
 #######################################################################################################
@@ -172,16 +173,53 @@ class WordVec2expVec(OptionParser):
         stderr.flush()
         dl_terms = loadJSON(options.terms)
 
-        vst, _ = wordVST2TermVST(word_vectors, dl_terms)
+        vstTerms, _ = wordVST2TermVST(word_vectors, dl_terms)
 
         if options.vstPath is not None:
-            stderr.write('writing vst: %s\n' % options.vstPath)
+            stderr.write('writing vst of expressions: %s\n' % options.vstPath)
             stderr.flush()
+            VST = dict()
+            for term in vstTerms.keys():
+                VST[term] = list(numpy.float_(npf32) for npf32 in vstTerms[term])
+            del vstTerms
             f = open(options.vstPath, 'w')
-            json.dump(vst, f)
+            json.dump(VST, f)
             f.close()
 
 
 
 if __name__ == '__main__':
-    WordVec2expVec().run()
+    #WordVec2expVec().run()
+
+    # Path to test data:
+    mentionsFilePath = "../test/DATA/trainingData/terms_trainObo.json"
+    modelPath = "../test/DATA/wordEmbeddings/VST_count0_size100_iter50.model"  # the provided models are really small models, just to test execution
+    vstTerms_path = "../test/DATA/expressionEmbeddings/vstTerm_trainObo.json"
+
+    # Load an existing W2V model (Gensim format):
+    print("\nLoading word embeddings...")
+    from gensim.models import Word2Vec
+    filename, file_extension = os.path.splitext(modelPath)
+    model = Word2Vec.load(modelPath)
+    vst_onlyTokens = dict((k, list(numpy.float_(npf32) for npf32 in model.wv[k])) for k in model.wv.vocab.keys())
+    print("Word embeddings loaded.\n")
+
+    print("\nLoading some expressions (for training dataset)...")
+    extractedMentionsFile = open(mentionsFilePath, 'r')
+    dl_trainingTerms = json.load(extractedMentionsFile)
+    print("Expressions loaded.\n")
+
+    print("Calculating representions for expressions (possibly multiwords)...")
+    vstTerms, l_unknownToken = wordVST2TermVST(vst_onlyTokens, dl_trainingTerms)
+    print(l_unknownToken)
+    VST = dict()
+    for term in vstTerms.keys():
+        VST[term] = list(numpy.float_(npf32) for npf32 in vstTerms[term])
+    del vstTerms
+    print("Calculating representions for expressions done.\n")
+
+    print("Writing of VST of expressions...")
+    f = open(vstTerms_path, 'w')
+    json.dump(VST, f)
+    f.close()
+    print("VST has been written.\n")

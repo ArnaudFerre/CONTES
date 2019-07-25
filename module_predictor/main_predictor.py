@@ -28,16 +28,21 @@ limitations under the License.
 # Import modules & set up logging
 #######################################################################################################
 from sklearn.externals import joblib
-import numpy
-import gensim
-from sys import stderr, stdin
+import sys, os
 from optparse import OptionParser
-from utils import word2term, onto
 import json
 import gzip
 from sklearn.neighbors import NearestNeighbors
 from scipy.spatial.distance import cosine
 from sklearn.preprocessing import normalize
+from numpy import asarray
+
+sys.path.insert(0, os.path.abspath(".."))
+from utils import word2term, onto
+
+#######################################################################################################
+# Functions
+#######################################################################################################
 
 
 def metric_internal(metric):
@@ -125,9 +130,7 @@ def loadJSON(filename):
 class Predictor(OptionParser):
     def __init__(self):
         OptionParser.__init__(self, usage='usage: %prog [options]')
-        self.add_option('--word-vectors', action='store', type='string', dest='word_vectors', help='path to word vectors file as produced by word2vec')
-        self.add_option('--word-vectors-bin', action='store', type='string', dest='word_vectors_bin', help='path to word vectors binary file as produced by word2vec')
-        self.add_option('--ontology', action='store', type='string', dest='ontology', help='path to ontology file in OBO format')
+        self.add_option('--ontology-vector', action='store', type='string', dest='vsoPath', help='path to the ontology vector file')
         self.add_option('--terms', action='append', type='string', dest='terms', help='path to terms file in JSON format (map: id -> array of tokens)')
         self.add_option('--factor', action='append', type='float', dest='factors', default=[], help='parent concept weight factor (default: 1.0)')
         self.add_option('--regression-matrix', action='append', type='string', dest='regression_matrix', help='path to the regression matrix file as produced by the training module')
@@ -156,37 +159,78 @@ class Predictor(OptionParser):
             raise Exception('there must be at least as many --terms as --factor')
         if len(options.factors) < len(options.terms):
             n = len(options.terms) - len(options.factors)
-            stderr.write('defaulting %d factors to 1.0\n' % n)
-            stderr.flush()
+            sys.stderr.write('defaulting %d factors to 1.0\n' % n)
+            sys.stderr.flush()
             options.factors.extend([1.0]*n)
         if options.vsoPath is None:
-            raise Exception('missing --vst')
+            raise Exception('missing --ontology-vector')
 
-        stderr.write('loading ontology: %s\n' % options.ontology)
-        stderr.flush()
-        ontology = onto.loadOnto(options.ontology)
         for terms_i, regression_matrix_i, output_i, factor_i in zip(options.terms, options.regression_matrix, options.output, options.factors):
-            vso = onto.ontoToVec(ontology, factor_i)
-            stderr.write('loading terms: %s\n' % terms_i)
-            stderr.flush()
+            sys.stderr.write('loading ontology-vector: %s\n' % options.vsoPath)
+            sys.stderr.flush()
+            vso = json.load(options.vsoPath)
+
+            sys.stderr.write('loading terms: %s\n' % terms_i)
+            sys.stderr.flush()
             terms = loadJSON(terms_i)
-            stderr.write('loading regression matrix: %s\n' % regression_matrix_i)
-            stderr.flush()
+            sys.stderr.write('loading regression matrix: %s\n' % regression_matrix_i)
+            sys.stderr.flush()
             regression_matrix = joblib.load(regression_matrix_i)
-            stderr.write('loading expressions embeddings: %s\n' % options.vsoPath)
-            stderr.flush()
+            sys.stderr.write('loading expressions embeddings: %s\n' % options.vsoPath)
+            sys.stderr.flush()
             vstTerm = loadJSON(options.vsoPath)
 
-            stderr.write('predicting\n')
-            stderr.flush()
+            sys.stderr.write('predicting\n')
+            sys.stderr.flush()
             prediction, _ = predictor(vstTerm, terms, vso, regression_matrix, options.metric)
 
-            stderr.write('writing predictions: %s\n' % output_i)
-            stderr.flush()
+            sys.stderr.write('writing predictions: %s\n' % output_i)
+            sys.stderr.flush()
             f = open(output_i, 'w')
             for _, term_id, concept_id, similarity in prediction:
                 f.write('%s\t%s\t%f\n' % (term_id, concept_id, similarity))
             f.close()
 
+
+
 if __name__ == '__main__':
-    Predictor().run()
+
+    # Path to test data:
+    mentionsFilePath = "../test/DATA/trainingData/terms_trainObo.json"
+    vst_termsPath = "../test/DATA/expressionEmbeddings/vstTerm_trainObo.json"
+    SSO_path = "../test/DATA/VSO_OntoBiotope_BioNLP-ST-2016.json"
+    regmatPath = "../test/DATA/learnedHyperparameters/model.sav"
+    predictionPath = "../test/DATA/predictedData/prediction_trainOboONtrainObo.json"
+
+    # load input data:
+    print("\nLoading data...")
+    extractedMentionsFile = open(mentionsFilePath, 'r')
+    dl_testedTerms = json.load(extractedMentionsFile)
+    extractedMentionsFile.close()
+    vstTermsFile = open(vst_termsPath, 'r')
+    vst_terms = json.load(vstTermsFile)
+    for term in vst_terms.keys():
+        vst_terms[term] = asarray(vst_terms[term])
+    vstTermsFile.close()
+    transformationParam = joblib.load(regmatPath)
+    print("Data loaded.\n")
+
+    # Building of concept embeddings and training:
+    print("Loading Semantic Space of the Ontology (SSO)...")
+    SSO_file = open(SSO_path, "r")
+    SSO = json.load(SSO_file)
+    print("SSO loaded.\n")
+
+    print("Prediction...")
+    metric = "cosine"
+    lt_predictions = predictor(vst_terms, dl_testedTerms, SSO, transformationParam, metric, symbol='___')
+    print("Prediction done.\n")
+
+    print("Saving prediction results...")
+    f = open(predictionPath, 'w')
+    json.dump(lt_predictions, f)
+    f.close()
+    print("Saving done.")
+
+
+    #Predictor().run()
