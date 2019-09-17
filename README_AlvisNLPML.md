@@ -20,38 +20,44 @@ Comments:
 - Be sure that you are root/administrator user.
 - (Optional) If you wish to apply some specific preprocessing to your corpus: get [TreeTagger](https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) tool.
 - You can jump the "Default command-line options" and "Web service" sections.
+- On Windows, use '\' instead of '/' in path.
 
 3. In your base directory of AlvisNLP/ML, fill the CONTES (and TreeTagger if installed) modules in the `default-param-values.xml` file:
 ```
 <module class="fr.inra.maiage.bibliome.alvisnlp.bibliomefactory.modules.treetagger.TreeTagger">
 	<treeTaggerExecutable>**pathToYourTreeTaggerExecutable**</treeTaggerExecutable>
-	<parFile>**pathToYourTreeTaggerDirectory**\lib\english-utf8.par</parFile>
+	<parFile>**pathToYourTreeTaggerDirectory**/lib/english-utf8.par</parFile>
 	<inputCharset>UTF-8</inputCharset>
 	<outputCharset>UTF-8</outputCharset>
 </module>
 
 <module class="fr.inra.maiage.bibliome.alvisnlp.bibliomefactory.modules.contes.Word2Vec">
 	<contesDir>**pathToYourContesDirectory**</contesDir>
-	<workers>|||DefaultNumberOfWorkers|||</workers>
+	<workers>**DefaultNumberOfWorkers**</workers>
 </module>
 
 <module class="fr.inra.maiage.bibliome.alvisnlp.bibliomefactory.modules.contes.ContesTrain">
-	<contesDir>|||pathToYourContesDirectory|||</contesDir>
+	<contesDir>**pathToYourContesDirectory**</contesDir>
 </module>
 
 <module class="fr.inra.maiage.bibliome.alvisnlp.bibliomefactory.modules.contes.ContesPredict">
-	<contesDir>|||pathToYourContesDirectory|||</contesDir>
+	<contesDir>**pathToYourContesDirectory**</contesDir>
 </module>
 ```
 
 4. If you want to use an AlvisNLP/ML plan, add this parameters in your command line:
 ```
-$ -inputDir . -inputDir ???
+$ -inputDir . -inputDir **yourAlvisDirectoryPath**
 ```
-For instance:
+For instance, on Linux:
 ```
-$ alvisnlp -inputDir . -inputDir |||yourAlvisDirectoryPath|||
+$ ./alvisnlp ../../alvisnlp/alvisnlp-test/contes/word2vec.plan -verbose -inputDir . -inputDir **MyPath**/AlvisNLP_ML/alvisnlp/alvisnlp-test/share
 ```
+And on Windows:
+```
+$ alvisnlp.bat ..\..\alvisnlp\alvisnlp-test\contes\word2vec.plan -verbose -inputDir . -inputDir **MyPath**\AlvisNLP_ML\alvisnlp\alvisnlp-test\share
+```
+
 
 ## CONTES 
 
