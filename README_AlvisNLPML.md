@@ -45,15 +45,11 @@ Comments:
 </module>
 ```
 
-4. If you want to use an AlvisNLP/ML plan, add this parameters in your command line:
-```
-$ -inputDir . -inputDir **yourAlvisDirectoryPath**
-```
-For instance, on Linux:
+4. Check your installation, for instance, on Linux:
 ```
 $ ./alvisnlp ../../alvisnlp/alvisnlp-test/contes/word2vec.plan -verbose -inputDir . -inputDir **MyPath**/AlvisNLP_ML/alvisnlp/alvisnlp-test/share
 ```
-And on Windows:
+Or on Windows:
 ```
 $ alvisnlp.bat ..\..\alvisnlp\alvisnlp-test\contes\word2vec.plan -verbose -inputDir . -inputDir **MyPath**\AlvisNLP_ML\alvisnlp\alvisnlp-test\share
 ```
