@@ -24,14 +24,14 @@ Comments:
 3. In your base directory of AlvisNLP/ML, fill the CONTES (and TreeTagger if installed) modules in the `default-param-values.xml` file:
 ```
 <module class="fr.inra.maiage.bibliome.alvisnlp.bibliomefactory.modules.treetagger.TreeTagger">
-	<treeTaggerExecutable>|||pathToYourTreeTaggerExecutable|||</treeTaggerExecutable>
-	<parFile>|||pathToYourTreeTaggerDirectory|||\lib\english-utf8.par</parFile>
+	<treeTaggerExecutable>**pathToYourTreeTaggerExecutable**</treeTaggerExecutable>
+	<parFile>**pathToYourTreeTaggerDirectory**\lib\english-utf8.par</parFile>
 	<inputCharset>UTF-8</inputCharset>
 	<outputCharset>UTF-8</outputCharset>
 </module>
 
 <module class="fr.inra.maiage.bibliome.alvisnlp.bibliomefactory.modules.contes.Word2Vec">
-	<contesDir>|||pathToYourContesDirectory|||</contesDir>
+	<contesDir>**pathToYourContesDirectory**</contesDir>
 	<workers>|||DefaultNumberOfWorkers|||</workers>
 </module>
 
