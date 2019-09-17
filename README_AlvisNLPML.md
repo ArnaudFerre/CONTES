@@ -20,7 +20,7 @@ Comments:
 - Be sure that you are root/administrator user.
 - (Optional) If you wish to apply some specific preprocessing to your corpus: get [TreeTagger](https://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) tool.
 - You can jump the "Default command-line options" and "Web service" sections.
-- On Windows, use '\' instead of '/' in path.
+- On Windows, use '\\' instead of '/' in path.
 
 3. In your base directory of AlvisNLP/ML, fill the CONTES (and TreeTagger if installed) modules in the `default-param-values.xml` file:
 ```
