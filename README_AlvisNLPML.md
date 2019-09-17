@@ -1,7 +1,7 @@
 # CONTES/HONOR
 
 This installation guide enable the use of two methods of normalization with concepts from a domain-specific ontology: CONTES and HONOR through the corpus processing engine [AlvisNLP/ML](https://bibliome.github.io/alvisnlp/).
-For more details on the methods, see related paper:
+For more details on the methods, see related papers:
 - [CONTES](http://www.aclweb.org/anthology/W17-2312): Representation of complex terms in a vector space structured by an ontology for a normalization task. Ferré, A., Zweigenbaum, P., & Nédellec, C. In 2017 ACL workshop BioNLP.
 - [HONOR](https://www.aclweb.org/anthology/L18-1543): Combining rule-based and embedding-based approaches to normalize textual entities with an ontology. Ferré, A., Deléger, L., Zweigenbaum, P., & Nédellec, C. In Proceedings of the Eleventh International Conference on Language Resources and Evaluation (LREC-2018).
 
