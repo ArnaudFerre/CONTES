@@ -54,13 +54,13 @@ Comments:
 </module>
 ```
 
-4. Check your installation, for instance, on Linux:
+4. Check your installation, for instance with the `word2vec.plan` in `alvisnlp/alvisnlp-test/contes`, on Linux:
 ```
-$ ./alvisnlp ../../alvisnlp/alvisnlp-test/contes/word2vec.plan -verbose -inputDir . -inputDir **yourAbsolutePathTo**/alvisnlp/alvisnlp-test/share
+$ ./../../../baseDirectoryAlvis/bin/alvisnlp.bat alvisnlp word2vec.plan -verbose -inputDir **yourAbsolutePathTo**/alvisnlp/alvisnlp-test/share -inputDir .
 ```
 Or on Windows:
 ```
-$ alvisnlp.bat ..\..\alvisnlp\alvisnlp-test\contes\word2vec.plan -verbose -inputDir . -inputDir **yourAbsolutePathTo**\AlvisNLP_ML\alvisnlp\alvisnlp-test\share
+$ ..\..\..\baseDirectoryAlvis\bin\alvisnlp.bat alvisnlp word2vec.plan -verbose -inputDir **yourAbsolutePathTo**\alvisnlp\alvisnlp-test\share -inputDir .
 ```
 
 
