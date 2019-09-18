@@ -1,5 +1,5 @@
 # CONTES
-CONcept-TErm System method to normalize multi-word terms with concepts from a domain-specific ontology (See [paper](http://www.aclweb.org/anthology/W17-2312)).
+CONcept-TErm System method to normalize multi-word terms with concepts from a domain-specific ontology (See [paper](http://www.aclweb.org/anthology/W17-2312)). This installation guide is for a direct use in command line. If you need to use others preprocessings or use the [HONOR](https://www.aclweb.org/anthology/L18-1543) method, please, check the [README_AlvisNLPML](https://github.com/ArnaudFerre/CONTES/blob/master/README_AlvisNLPML.md).
 
 The system is based on |gensim| |sklearn|
 
