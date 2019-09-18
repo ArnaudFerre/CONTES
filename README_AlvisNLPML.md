@@ -5,6 +5,13 @@ For more details on the methods, see related papers:
 - [CONTES](http://www.aclweb.org/anthology/W17-2312): Representation of complex terms in a vector space structured by an ontology for a normalization task. Ferré, A., Zweigenbaum, P., & Nédellec, C. In 2017 ACL workshop BioNLP.
 - [HONOR](https://www.aclweb.org/anthology/L18-1543): Combining rule-based and embedding-based approaches to normalize textual entities with an ontology. Ferré, A., Deléger, L., Zweigenbaum, P., & Nédellec, C. In Proceedings of the Eleventh International Conference on Language Resources and Evaluation (LREC-2018).
 
+## Prerequisites
+
+* Python 3.x (tested with Anaconda and Python 3.7)
+* [Gensim](https://radimrehurek.com/gensim/install.html)
+* [Scikit-Learn](https://scikit-learn.org/stable/install.html)
+Comment: Using [Anaconda](https://www.anaconda.com/distribution/) with Python 3.x will install most of the usual libs needed by these prerequisited libs and enable some other practical things (like virtual environment). We recommand their use.
+
 
 ## Intallation
 1. Get AlvisNLP/ML from GitHub:
