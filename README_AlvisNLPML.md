@@ -47,11 +47,11 @@ Comments:
 
 4. Check your installation, for instance, on Linux:
 ```
-$ ./alvisnlp ../../alvisnlp/alvisnlp-test/contes/word2vec.plan -verbose -inputDir . -inputDir **MyPath**/AlvisNLP_ML/alvisnlp/alvisnlp-test/share
+$ ./alvisnlp ../../alvisnlp/alvisnlp-test/contes/word2vec.plan -verbose -inputDir . -inputDir **yourAbsolutePathTo**/alvisnlp/alvisnlp-test/share
 ```
 Or on Windows:
 ```
-$ alvisnlp.bat ..\..\alvisnlp\alvisnlp-test\contes\word2vec.plan -verbose -inputDir . -inputDir **MyPath**\AlvisNLP_ML\alvisnlp\alvisnlp-test\share
+$ alvisnlp.bat ..\..\alvisnlp\alvisnlp-test\contes\word2vec.plan -verbose -inputDir . -inputDir **yourAbsolutePathTo**\AlvisNLP_ML\alvisnlp\alvisnlp-test\share
 ```
 
 
