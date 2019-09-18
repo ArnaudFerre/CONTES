@@ -75,17 +75,15 @@ You can find template of CONTES/HONOR AlvisNLP/ML plans in `alvisnlp\alvisnlp-te
 1. Training step: ContesTrain
 The module use a set of word embeddings and an ontology. You can try this command line to use the plan:
 ```
-$ ..\baseDirectoryAlvis\bin\alvisnlp.bat train.plan -verbose -inputDir . -inputDir C:\Users\arferre\workspace\AlvisNLP_ML\alvisnlp\alvisnlp-test\share
+$ ..\baseDirectoryAlvis\bin\alvisnlp.bat train.plan -verbose -inputDir . -inputDir **yourAbsolutePathTo**\alvisnlp\alvisnlp-test\share
 ```
 The plan will create a sklearn file `regression.bin`, which contains the learned parameters of the training. Check [LinearRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html) for more details on this file.
 
 2. Prediction step: ContesPredict
 The module use a set of word embeddings, an ontology and the a `regression.bin`. You can try this command line to use the plan:
 ```
-$ ..\baseDirectoryAlvis\bin\alvisnlp.bat train.plan -verbose -inputDir . -inputDir C:\Users\arferre\workspace\AlvisNLP_ML\alvisnlp\alvisnlp-test\share
+$ ..\baseDirectoryAlvis\bin\alvisnlp.bat predict.plan -verbose -inputDir . -inputDir **yourAbsolutePathTo**\alvisnlp\alvisnlp-test\share
 ```
-
-Ongoing...
 
 3. Evaluation
 For the Bacteria Biotope task of BioNLP-ST 2016, you can evaluate [online](http://bibliome.jouy.inra.fr/demo/BioNLP-ST-2016-Evaluation/index.html) the performance of the method.
