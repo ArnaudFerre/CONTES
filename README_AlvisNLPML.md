@@ -32,6 +32,7 @@ Comments:
 </module>
 
 <module class="fr.inra.maiage.bibliome.alvisnlp.bibliomefactory.modules.contes.Word2Vec">
+	<python3Executable>**pathToPythonExe**</python3Executable>
 	<contesDir>**pathToYourContesDirectory**</contesDir>
 	<workers>**DefaultNumberOfWorkers**</workers>
 </module>
