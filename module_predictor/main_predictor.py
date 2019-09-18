@@ -27,6 +27,7 @@ limitations under the License.
 #######################################################################################################
 # Import modules & set up logging
 #######################################################################################################
+from io import open
 from sklearn.externals import joblib
 import numpy
 import gensim
