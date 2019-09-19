@@ -6,8 +6,7 @@ For more details on the methods, see related papers:
 - [HONOR](https://www.aclweb.org/anthology/L18-1543): Combining rule-based and embedding-based approaches to normalize textual entities with an ontology. Ferré, A., Deléger, L., Zweigenbaum, P., & Nédellec, C. In Proceedings of the Eleventh International Conference on Language Resources and Evaluation (LREC-2018).
 
 ## Prerequisites
-
-* Python 3.x (tested with Anaconda and Python 3.7)
+* Python 3.x (tested with [Anaconda](https://www.anaconda.com/distribution/) with Python 3.7)
 * [Gensim](https://radimrehurek.com/gensim/install.html)
 * [Scikit-Learn](https://scikit-learn.org/stable/install.html)
 * [pronto](https://pypi.org/project/pronto/)
