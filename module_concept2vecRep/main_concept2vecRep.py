@@ -101,4 +101,27 @@ class Concept2vecRep(OptionParser):
 
 
 if __name__ == '__main__':
-    Concept2vecRep().run()
+    #Concept2vecRep().run()
+
+    # Path:
+    ontopath = "../test/DATA/OntoBiotope_BioNLP-ST-2016.obo"
+    SSO_path = "../test/DATA/VSO_OntoBiotope_BioNLP-ST-2016.json"
+
+    # Calculate the Vector Space of the Ontology:
+    print("Calculating representions for each concept of the ontology...")
+    vso = concept2vecRep(ontopath, mode="Ancestry", factor=None)
+    print("Calculating done.\n")
+
+    # Change the format of numbers to enable save:
+    print("Change the format of numbers to enable save...")
+    for concept in vso.keys():
+        vso[concept] = list(numpy.float_(npf32) for npf32 in vso[concept])
+    print("Change done.\n")
+
+    print("Saving the calculated vector space of the current ontology...")
+    f = open(SSO_path, 'w')
+    json.dump(vso, f)
+    f.close()
+    print("Saving done.\n")
+
+
