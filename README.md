@@ -1,7 +1,11 @@
 # CONTES
 CONcept-TErm System method to normalize multi-word terms with concepts from a domain-specific ontology (See [paper](http://www.aclweb.org/anthology/W17-2312)). This installation guide is for a direct use in command line. If you need to use other preprocessings or use the [HONOR](https://www.aclweb.org/anthology/L18-1543) method, please, check the [README_AlvisNLPML](https://github.com/ArnaudFerre/CONTES/blob/master/README_AlvisNLPML.md).
 
-The system is based on |gensim| |sklearn|
+## Prerequisites
+* Python 3.x (tested with [Anaconda](https://www.anaconda.com/distribution/) with Python 3.7)
+* [Gensim](https://radimrehurek.com/gensim/install.html)
+* [Scikit-Learn](https://scikit-learn.org/stable/install.html)
+* [pronto](https://pypi.org/project/pronto/)
 
 ## Intallation
 1. Get CONTES from github
@@ -67,3 +71,8 @@ $ python module_predictor/main_predictor.py \
 --ontology test-data/OntoBiotope_BioNLP-ST-2016.obo \
 --output test-data/predictions/output.json
 ``` 
+
+
+## Use as a Python library
+
+If you want to directly use the CONTES method in a Python code, you can find a full demonstration in `DEMO/CONTES_demo.py`.
