@@ -72,6 +72,10 @@ The CONTES method consists of two modules: [ContesTrain](https://bibliome.github
 
 You can find template of CONTES/HONOR AlvisNLP/ML plans in `alvisnlp\alvisnlp-test\contes`. By default, these templates use the `read` plan which is in `alvisnlp\alvisnlp-test\share\BioNLP-ST-2016_BB-cat+ner`. This plan uses reader module [BioNLPSTReader](https://bibliome.github.io/alvisnlp/reference/module/BioNLPSTReader) to load the open data of the Bacterai Biotope normalization task of [BioNLP-ST 2016](http://2016.bionlp-st.org/tasks/bb2). They also use the OntoBiotope ontology of the task (2016 version), which is in `alvisnlp\alvisnlp-test\share\`. Check the [documentation](https://bibliome.github.io/alvisnlp/reference/Module-reference#readers) on reader modules to load other data. You also need the `normalization.plan` in `alvisnlp\alvisnlp-test\contes`, which operates some preprocessings on all data (stopwords filtering, lowercase, ...).
 
+Supported file formats:
+- The ontology format OBO is supported (and possibly OWL).
+- The word embeddings formats are JSON ({"token": \[values\],}) or Gensim binary (use [wordEmbeddingsModel parameter](https://bibliome.github.io/alvisnlp/reference/module/ContesTrain)).
+
 1. Training step: ContesTrain
 The module use a set of word embeddings and an ontology. You can try this command line to use the plan:
 ```
@@ -87,7 +91,6 @@ $ ..\baseDirectoryAlvis\bin\alvisnlp.bat predict.plan -verbose -inputDir . -inpu
 
 3. Evaluation
 For the Bacteria Biotope task of BioNLP-ST 2016, you can evaluate [online](http://bibliome.jouy.inra.fr/demo/BioNLP-ST-2016-Evaluation/index.html) the performance of the method.
- 
 
 ## HONOR 
 
